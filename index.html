@@ -9,328 +9,212 @@
   <link href="https://fonts.googleapis.com/css2?family=Sigmar&family=Oooh+Baby&display=swap" rel="stylesheet">
 
   <style>
-    :root {
-      --bg: #222323;
-      --panel: #1b1c1c;
-      --primary: #d4d4d4;
-      --muted: #7d7d7d;
-      --accent: #a0a0a0;
+    * {
+      cursor: none;
+      user-select: none;
     }
-
-    * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      background: var(--bg);
-      color: var(--primary);
+      background-color: #222323;
+      min-height: 100vh;
+      overflow: hidden;
       font-family: Helvetica, Arial, sans-serif;
-      overflow-x: hidden;
-      cursor: none;
     }
 
-    /* ===== Cursor ===== */
-    .cursor-dot,
-    .cursor-circle,
-    .cursor-glow {
-      position: fixed;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-    }
-
+    /* ===== Custom Cursor ===== */
     .cursor-dot {
+      position: fixed;
       width: 8px;
       height: 8px;
-      background: var(--primary);
+      background-color: #d4d4d4;
       border-radius: 50%;
+      pointer-events: none;
       z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: background-color 0.3s ease;
     }
 
     .cursor-circle {
+      position: fixed;
       width: 44px;
       height: 44px;
-      border: 2px solid var(--primary);
+      border: 2px solid #d4d4d4;
       border-radius: 50%;
+      pointer-events: none;
       z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: all 0.15s ease-out;
     }
 
     .cursor-glow {
+      position: fixed;
       width: 220px;
       height: 220px;
-      background: radial-gradient(circle, rgba(212,212,212,0.18) 0%, rgba(212,212,212,0) 70%);
+      background: radial-gradient(circle, rgba(212,212,212,0.15) 0%, rgba(212,212,212,0) 70%);
       border-radius: 50%;
+      pointer-events: none;
       z-index: 9997;
+      transform: translate(-50%, -50%);
+      transition: all 0.2s ease-out;
       mix-blend-mode: screen;
-      opacity: 0;
-      transition: opacity 0.3s ease;
     }
 
-    body.active .cursor-dot { background: var(--accent); }
-    body.active .cursor-circle { border-color: var(--accent); }
-    body.active .cursor-glow { opacity: 1; }
+    .golden.cursor-dot {
+      background-color: #a0a0a0;
+    }
+
+    .golden.cursor-circle {
+      border-color: #a0a0a0;
+    }
+
+    .golden.cursor-glow {
+      background: radial-gradient(circle, rgba(160,160,160,0.15) 0%, rgba(160,160,160,0) 70%);
+    }
 
     /* ===== Hamburger ===== */
-    .hamburger {
+    .hamburger-menu {
       position: fixed;
-      top: 32px;
-      left: 32px;
+      top: 30px;
+      left: 30px;
       width: 64px;
       height: 64px;
-      background: #2a2a2a;
+      background-color: #2a2a2a;
       border-radius: 50%;
-      border: 2px solid transparent;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 6px;
-      z-index: 1001;
+      border: 2px solid transparent;
       transition: all 0.3s ease;
-    }
-
-    .hamburger:hover {
-      border-color: var(--primary);
-      background: #3a3a3a;
-    }
-
-    .hamburger span {
-      width: 26px;
-      height: 2px;
-      background: var(--muted);
-      transition: all 0.4s ease;
-    }
-
-    .hamburger.open span:nth-child(1) {
-      transform: rotate(45deg) translate(5px, 5px);
-    }
-
-    .hamburger.open span:nth-child(2) {
-      opacity: 0;
-    }
-
-    .hamburger.open span:nth-child(3) {
-      transform: rotate(-45deg) translate(6px, -6px);
-    }
-
-    /* ===== Mini Menu ===== */
-    .menu {
-      position: fixed;
-      top: 110px;
-      left: 32px;
-      background: #1b1c1c;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 18px;
-      padding: 18px 22px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-      opacity: 0;
-      transform: translateY(-10px) scale(0.95);
-      pointer-events: none;
-      transition: all 0.35s cubic-bezier(0.77, 0, 0.175, 1);
       z-index: 1000;
     }
 
-    .menu.open {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-      pointer-events: auto;
+    .hamburger-menu:hover {
+      background-color: #3a3a3a;
+      border-color: #d4d4d4;
     }
 
-    .menu a {
-      font-size: 1.1rem;
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 500;
-      transition: opacity 0.25s ease;
+    .hamburger-menu.pressed {
+      background-color: #4a4a4a;
     }
 
-    .menu a:hover {
-      opacity: 0.7;
+    .hamburger-line {
+      width: 26px;
+      height: 2px;
+      background-color: #7d7d7d;
+      transition: background-color 0.3s ease;
     }
 
-    .nav a {
-      font-size: clamp(2.5rem, 6vw, 4rem);
-      font-family: 'Sigmar', cursive;
-      color: var(--primary);
-      text-decoration: none;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: all 0.5s ease;
+    .hamburger-menu:hover .hamburger-line {
+      background-color: #d4d4d4;
     }
 
-    .nav.open a {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* ===== Sections ===== */
-    section {
+    /* ===== Layout ===== */
+    .center {
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 80px 24px;
     }
 
     h1 {
       font-family: 'Sigmar', cursive;
-      font-size: clamp(4rem, 7vw, 6.5rem);
+      font-size: 6rem;
+      color: #d4d4d4;
       margin: 0;
-      letter-spacing: 0.04em;
       line-height: 1;
+      letter-spacing: 0.04em;
     }
 
     h2 {
       font-family: 'Oooh Baby', cursive;
-      font-size: clamp(2.5rem, 4vw, 3.5rem);
-      margin-top: -12px;
+      font-size: 3.5rem;
+      color: #d4d4d4;
+      margin-top: -10px; /* closer to h1 */
       line-height: 1;
     }
 
-    .cta {
-      margin-top: 40px;
-      padding: 18px 48px;
+    .custom-button {
+      margin-top: 32px;
+      background-color: #2a2a2a;
+      color: #7d7d7d;
       border-radius: 999px;
-      background: #2a2a2a;
-      color: var(--muted);
-      border: 2px solid transparent;
+      padding: 16px 44px;
       font-size: 1.15rem;
+      font-weight: 500;
+      border: 2px solid transparent;
       transition: all 0.3s ease;
     }
 
-    .cta:hover {
-      background: #3a3a3a;
-      color: var(--primary);
-      border-color: var(--primary);
-      transform: scale(1.05);
+    .custom-button:hover {
+      background-color: #3a3a3a;
+      color: #d4d4d4;
+      border-color: #d4d4d4;
+      transform: scale(1.03);
     }
 
-    /* ===== Reveal Animation ===== */
-    .reveal {
-      opacity: 0;
-      transform: translateY(40px);
-      transition: all 0.9s ease;
-    }
-
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    @media (pointer: coarse) {
-      body { cursor: auto; }
-      .cursor-dot, .cursor-circle, .cursor-glow { display: none; }
+    .custom-button.pressed {
+      background-color: #4a4a4a;
     }
   </style>
 </head>
+
 <body>
 
   <!-- Cursor -->
-  <div class="cursor-glow"></div>
-  <div class="cursor-dot"></div>
-  <div class="cursor-circle"></div>
+  <div id="glow" class="cursor-glow"></div>
+  <div id="dot" class="cursor-dot"></div>
+  <div id="circle" class="cursor-circle"></div>
 
   <!-- Hamburger -->
-  <button class="hamburger" aria-label="Menu">
-    <span></span>
-    <span></span>
-    <span></span>
+  <button id="hamburger" class="hamburger-menu">
+    <div class="hamburger-line"></div>
+    <div class="hamburger-line"></div>
+    <div class="hamburger-line"></div>
   </button>
 
-  <!-- Navigation -->
-  <!-- Mini Menu -->
-  <nav class="menu">
-    <a href="#about">About</a>
-    <a href="#work">Work</a>
-    <a href="#contact">Contact</a>
-  </nav>
-
-  <!-- Hero -->
-  <section id="home">
-    <div class="reveal">
+  <!-- Main Content -->
+  <div class="center">
+    <div>
       <h1>Anurag Sur</h1>
       <h2>Product Designer.</h2>
-      <button class="cta">Explore my work</button>
-    </div>
-  </section>
 
-  <!-- About -->
-  <section id="about">
-    <div class="reveal">
-      <h1>Designing clarity.</h1>
-      <h2>Through systems, products & stories.</h2>
+      <button id="cta" class="custom-button">
+        Know more about me
+      </button>
     </div>
-  </section>
-
-  <!-- Work -->
-  <section id="work">
-    <div class="reveal">
-      <h1>Selected Work</h1>
-      <h2>Coming very soon.</h2>
-    </div>
-  </section>
-
-  <!-- Contact -->
-  <section id="contact">
-    <div class="reveal">
-      <h1>Let’s build.</h1>
-      <h2>anuragsur@yourmail.com</h2>
-    </div>
-  </section>
+  </div>
 
   <script>
-    /* Cursor inertia */
-    const dot = document.querySelector('.cursor-dot');
-    const circle = document.querySelector('.cursor-circle');
-    const glow = document.querySelector('.cursor-glow');
-    const interactive = document.querySelectorAll('button, a');
+    const dot = document.getElementById('dot');
+    const circle = document.getElementById('circle');
+    const glow = document.getElementById('glow');
+    const hamburger = document.getElementById('hamburger');
+    const cta = document.getElementById('cta');
 
-    let mx = 0, my = 0, cx = 0, cy = 0;
-
-    function loop() {
-      cx += (mx - cx) * 0.15;
-      cy += (my - cy) * 0.15;
-      dot.style.left = circle.style.left = glow.style.left = cx + 'px';
-      dot.style.top = circle.style.top = glow.style.top = cy + 'px';
-      requestAnimationFrame(loop);
+    function setGolden(state) {
+      [dot, circle, glow].forEach(el => {
+        el.classList.toggle('golden', state);
+      });
     }
 
-    window.addEventListener('mousemove', e => {
-      mx = e.clientX;
-      my = e.clientY;
+    window.addEventListener('mousemove', (e) => {
+      const x = e.clientX;
+      const y = e.clientY;
+
+      dot.style.left = circle.style.left = glow.style.left = x + 'px';
+      dot.style.top = circle.style.top = glow.style.top = y + 'px';
     });
 
-    interactive.forEach(el => {
-      el.addEventListener('mouseenter', () => document.body.classList.add('active'));
-      el.addEventListener('mouseleave', () => document.body.classList.remove('active'));
+    [hamburger, cta].forEach(el => {
+      el.addEventListener('mouseenter', () => setGolden(true));
+      el.addEventListener('mouseleave', () => setGolden(false));
+      el.addEventListener('mousedown', () => el.classList.add('pressed'));
+      el.addEventListener('mouseup', () => el.classList.remove('pressed'));
     });
-
-    loop();
-
-    /* Hamburger toggle */
-    const hamburger = document.querySelector('.hamburger');
-    const menu = document.querySelector('.menu');
-
-    hamburger.addEventListener('click', () => {
-      hamburger.classList.toggle('open');
-      menu.classList.toggle('open');
-    });
-    });
-
-    /* Reveal on scroll */
-    const reveals = document.querySelectorAll('.reveal');
-
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
-    }, { threshold: 0.2 });
-
-    reveals.forEach(r => observer.observe(r));
   </script>
 
 </body>
