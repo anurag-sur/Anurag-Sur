@@ -22,7 +22,7 @@
       font-family: Helvetica, Arial, sans-serif;
     }
 
-    /* Cursor */
+    /* ===== Custom Cursor ===== */
     .cursor-dot {
       position: fixed;
       width: 8px;
@@ -37,8 +37,8 @@
 
     .cursor-circle {
       position: fixed;
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
       border: 2px solid #d4d4d4;
       border-radius: 50%;
       pointer-events: none;
@@ -49,8 +49,8 @@
 
     .cursor-glow {
       position: fixed;
-      width: 200px;
-      height: 200px;
+      width: 220px;
+      height: 220px;
       background: radial-gradient(circle, rgba(212,212,212,0.15) 0%, rgba(212,212,212,0) 70%);
       border-radius: 50%;
       pointer-events: none;
@@ -72,13 +72,13 @@
       background: radial-gradient(circle, rgba(160,160,160,0.15) 0%, rgba(160,160,160,0) 70%);
     }
 
-    /* Hamburger */
+    /* ===== Hamburger ===== */
     .hamburger-menu {
       position: fixed;
       top: 30px;
       left: 30px;
-      width: 60px;
-      height: 60px;
+      width: 64px;
+      height: 64px;
       background-color: #2a2a2a;
       border-radius: 50%;
       display: flex;
@@ -101,7 +101,7 @@
     }
 
     .hamburger-line {
-      width: 24px;
+      width: 26px;
       height: 2px;
       background-color: #7d7d7d;
       transition: background-color 0.3s ease;
@@ -111,7 +111,7 @@
       background-color: #d4d4d4;
     }
 
-    /* Content */
+    /* ===== Layout ===== */
     .center {
       min-height: 100vh;
       display: flex;
@@ -122,24 +122,29 @@
 
     h1 {
       font-family: 'Sigmar', cursive;
-      font-size: 4.5rem;
+      font-size: 6rem;
       color: #d4d4d4;
       margin: 0;
+      line-height: 1;
+      letter-spacing: 0.04em;
     }
 
     h2 {
       font-family: 'Oooh Baby', cursive;
-      font-size: 3rem;
+      font-size: 3.5rem;
       color: #d4d4d4;
-      margin: 5px 0 0;
+      margin-top: -10px; /* closer to h1 */
+      line-height: 1;
     }
 
     .custom-button {
-      margin-top: 24px;
+      margin-top: 32px;
       background-color: #2a2a2a;
       color: #7d7d7d;
-      border-radius: 50px;
-      padding: 12px 30px;
+      border-radius: 999px;
+      padding: 16px 44px;
+      font-size: 1.15rem;
+      font-weight: 500;
       border: 2px solid transparent;
       transition: all 0.3s ease;
     }
@@ -148,15 +153,11 @@
       background-color: #3a3a3a;
       color: #d4d4d4;
       border-color: #d4d4d4;
+      transform: scale(1.03);
     }
 
     .custom-button.pressed {
       background-color: #4a4a4a;
-    }
-
-    .blurred {
-      filter: blur(3px);
-      transition: filter 0.3s ease;
     }
   </style>
 </head>
@@ -178,8 +179,8 @@
   <!-- Main Content -->
   <div class="center">
     <div>
-      <h1 id="title">Anurag Sur</h1>
-      <h2 id="subtitle">Product Designer.</h2>
+      <h1>Anurag Sur</h1>
+      <h2>Product Designer.</h2>
 
       <button id="cta" class="custom-button">
         Know more about me
@@ -194,7 +195,11 @@
     const hamburger = document.getElementById('hamburger');
     const cta = document.getElementById('cta');
 
-    let hoveringUI = false;
+    function setGolden(state) {
+      [dot, circle, glow].forEach(el => {
+        el.classList.toggle('golden', state);
+      });
+    }
 
     window.addEventListener('mousemove', (e) => {
       const x = e.clientX;
@@ -204,16 +209,9 @@
       dot.style.top = circle.style.top = glow.style.top = y + 'px';
     });
 
-    function setGolden(state) {
-      [dot, circle, glow].forEach(el => {
-        el.classList.toggle('golden', state);
-      });
-    }
-
     [hamburger, cta].forEach(el => {
       el.addEventListener('mouseenter', () => setGolden(true));
       el.addEventListener('mouseleave', () => setGolden(false));
-
       el.addEventListener('mousedown', () => el.classList.add('pressed'));
       el.addEventListener('mouseup', () => el.classList.remove('pressed'));
     });
