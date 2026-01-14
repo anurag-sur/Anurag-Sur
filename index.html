@@ -11,21 +11,20 @@
   <style>
     :root {
       --bg: #222323;
+      --panel: #1b1c1c;
       --primary: #d4d4d4;
       --muted: #7d7d7d;
       --accent: #a0a0a0;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
       background: var(--bg);
-      min-height: 100vh;
+      color: var(--primary);
       font-family: Helvetica, Arial, sans-serif;
-      overflow: hidden;
+      overflow-x: hidden;
       cursor: none;
     }
 
@@ -35,7 +34,6 @@
     .cursor-glow {
       position: fixed;
       pointer-events: none;
-      z-index: 9999;
       transform: translate(-50%, -50%);
     }
 
@@ -44,6 +42,7 @@
       height: 8px;
       background: var(--primary);
       border-radius: 50%;
+      z-index: 9999;
     }
 
     .cursor-circle {
@@ -57,7 +56,7 @@
     .cursor-glow {
       width: 220px;
       height: 220px;
-      background: radial-gradient(circle, rgba(212,212,212,0.15) 0%, rgba(212,212,212,0) 70%);
+      background: radial-gradient(circle, rgba(212,212,212,0.18) 0%, rgba(212,212,212,0) 70%);
       border-radius: 50%;
       z-index: 9997;
       mix-blend-mode: screen;
@@ -65,21 +64,12 @@
       transition: opacity 0.3s ease;
     }
 
-    .active .cursor-dot {
-      background: var(--accent);
-    }
-
-    .active .cursor-circle {
-      border-color: var(--accent);
-    }
-
-    .active .cursor-glow {
-      opacity: 1;
-      background: radial-gradient(circle, rgba(160,160,160,0.18) 0%, rgba(160,160,160,0) 70%);
-    }
+    body.active .cursor-dot { background: var(--accent); }
+    body.active .cursor-circle { border-color: var(--accent); }
+    body.active .cursor-glow { opacity: 1; }
 
     /* ===== Hamburger ===== */
-    .hamburger-menu {
+    .hamburger {
       position: fixed;
       top: 32px;
       left: 32px;
@@ -90,43 +80,85 @@
       border: 2px solid transparent;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       gap: 6px;
+      z-index: 1001;
       transition: all 0.3s ease;
-      z-index: 1000;
     }
 
-    .hamburger-menu:hover {
+    .hamburger:hover {
       border-color: var(--primary);
       background: #3a3a3a;
     }
 
-    .hamburger-line {
+    .hamburger span {
       width: 26px;
       height: 2px;
       background: var(--muted);
-      transition: background 0.3s ease;
+      transition: all 0.4s ease;
     }
 
-    .hamburger-menu:hover .hamburger-line {
-      background: var(--primary);
+    .hamburger.open span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
     }
 
-    /* ===== Layout ===== */
-    .center {
+    .hamburger.open span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger.open span:nth-child(3) {
+      transform: rotate(-45deg) translate(6px, -6px);
+    }
+
+    /* ===== Nav Overlay ===== */
+    .nav {
+      position: fixed;
+      inset: 0;
+      background: var(--panel);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      transform: translateY(-100%);
+      transition: transform 0.7s cubic-bezier(0.77, 0, 0.175, 1);
+      z-index: 1000;
+    }
+
+    .nav.open {
+      transform: translateY(0);
+    }
+
+    .nav a {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-family: 'Sigmar', cursive;
+      color: var(--primary);
+      text-decoration: none;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s ease;
+    }
+
+    .nav.open a {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ===== Sections ===== */
+    section {
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
+      padding: 80px 24px;
     }
 
     h1 {
       font-family: 'Sigmar', cursive;
       font-size: clamp(4rem, 7vw, 6.5rem);
       margin: 0;
-      color: var(--primary);
       letter-spacing: 0.04em;
       line-height: 1;
     }
@@ -135,48 +167,45 @@
       font-family: 'Oooh Baby', cursive;
       font-size: clamp(2.5rem, 4vw, 3.5rem);
       margin-top: -12px;
-      color: var(--primary);
       line-height: 1;
     }
 
-    .custom-button {
-      margin-top: 36px;
+    .cta {
+      margin-top: 40px;
       padding: 18px 48px;
       border-radius: 999px;
       background: #2a2a2a;
       color: var(--muted);
       border: 2px solid transparent;
       font-size: 1.15rem;
-      font-weight: 500;
       transition: all 0.3s ease;
     }
 
-    .custom-button:hover {
+    .cta:hover {
       background: #3a3a3a;
       color: var(--primary);
       border-color: var(--primary);
-      transform: scale(1.04);
+      transform: scale(1.05);
     }
 
-    .custom-button:focus-visible {
-      outline: 2px solid var(--primary);
-      outline-offset: 4px;
+    /* ===== Reveal Animation ===== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.9s ease;
     }
 
-    /* ===== Mobile fallback ===== */
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     @media (pointer: coarse) {
-      body {
-        cursor: auto;
-      }
-      .cursor-dot,
-      .cursor-circle,
-      .cursor-glow {
-        display: none;
-      }
+      body { cursor: auto; }
+      .cursor-dot, .cursor-circle, .cursor-glow { display: none; }
     }
   </style>
 </head>
-
 <body>
 
   <!-- Cursor -->
@@ -185,43 +214,72 @@
   <div class="cursor-circle"></div>
 
   <!-- Hamburger -->
-  <button class="hamburger-menu" aria-label="Menu">
-    <div class="hamburger-line"></div>
-    <div class="hamburger-line"></div>
-    <div class="hamburger-line"></div>
+  <button class="hamburger" aria-label="Menu">
+    <span></span>
+    <span></span>
+    <span></span>
   </button>
 
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="#about">About</a>
+    <a href="#work">Work</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
   <!-- Hero -->
-  <main class="center">
-    <section>
+  <section id="home">
+    <div class="reveal">
       <h1>Anurag Sur</h1>
       <h2>Product Designer.</h2>
-      <button class="custom-button">Know more about me</button>
-    </section>
-  </main>
+      <button class="cta">Explore my work</button>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about">
+    <div class="reveal">
+      <h1>Designing clarity.</h1>
+      <h2>Through systems, products & stories.</h2>
+    </div>
+  </section>
+
+  <!-- Work -->
+  <section id="work">
+    <div class="reveal">
+      <h1>Selected Work</h1>
+      <h2>Coming very soon.</h2>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact">
+    <div class="reveal">
+      <h1>Let’s build.</h1>
+      <h2>anuragsur@yourmail.com</h2>
+    </div>
+  </section>
 
   <script>
+    /* Cursor inertia */
     const dot = document.querySelector('.cursor-dot');
     const circle = document.querySelector('.cursor-circle');
     const glow = document.querySelector('.cursor-glow');
-    const interactive = document.querySelectorAll('button');
+    const interactive = document.querySelectorAll('button, a');
 
-    let mouseX = 0, mouseY = 0;
-    let currentX = 0, currentY = 0;
+    let mx = 0, my = 0, cx = 0, cy = 0;
 
-    function animate() {
-      currentX += (mouseX - currentX) * 0.15;
-      currentY += (mouseY - currentY) * 0.15;
-
-      dot.style.left = circle.style.left = glow.style.left = currentX + 'px';
-      dot.style.top = circle.style.top = glow.style.top = currentY + 'px';
-
-      requestAnimationFrame(animate);
+    function loop() {
+      cx += (mx - cx) * 0.15;
+      cy += (my - cy) * 0.15;
+      dot.style.left = circle.style.left = glow.style.left = cx + 'px';
+      dot.style.top = circle.style.top = glow.style.top = cy + 'px';
+      requestAnimationFrame(loop);
     }
 
     window.addEventListener('mousemove', e => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
+      mx = e.clientX;
+      my = e.clientY;
     });
 
     interactive.forEach(el => {
@@ -229,7 +287,29 @@
       el.addEventListener('mouseleave', () => document.body.classList.remove('active'));
     });
 
-    animate();
+    loop();
+
+    /* Hamburger toggle */
+    const hamburger = document.querySelector('.hamburger');
+    const nav = document.querySelector('.nav');
+
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      nav.classList.toggle('open');
+    });
+
+    /* Reveal on scroll */
+    const reveals = document.querySelectorAll('.reveal');
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.2 });
+
+    reveals.forEach(r => observer.observe(r));
   </script>
 
 </body>
