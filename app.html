@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Anurag Sur</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Sigmar&family=Oooh+Baby&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      cursor: none;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      background-color: #222323;
+      min-height: 100vh;
+      overflow: hidden;
+      font-family: Helvetica, Arial, sans-serif;
+    }
+
+    /* Cursor */
+    .cursor-dot {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      background-color: #d4d4d4;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: background-color 0.3s ease;
+    }
+
+    .cursor-circle {
+      position: fixed;
+      width: 40px;
+      height: 40px;
+      border: 2px solid #d4d4d4;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: all 0.15s ease-out;
+    }
+
+    .cursor-glow {
+      position: fixed;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(212,212,212,0.15) 0%, rgba(212,212,212,0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9997;
+      transform: translate(-50%, -50%);
+      transition: all 0.2s ease-out;
+      mix-blend-mode: screen;
+    }
+
+    .golden.cursor-dot {
+      background-color: #a0a0a0;
+    }
+
+    .golden.cursor-circle {
+      border-color: #a0a0a0;
+    }
+
+    .golden.cursor-glow {
+      background: radial-gradient(circle, rgba(160,160,160,0.15) 0%, rgba(160,160,160,0) 70%);
+    }
+
+    /* Hamburger */
+    .hamburger-menu {
+      position: fixed;
+      top: 30px;
+      left: 30px;
+      width: 60px;
+      height: 60px;
+      background-color: #2a2a2a;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .hamburger-menu:hover {
+      background-color: #3a3a3a;
+      border-color: #d4d4d4;
+    }
+
+    .hamburger-menu.pressed {
+      background-color: #4a4a4a;
+    }
+
+    .hamburger-line {
+      width: 24px;
+      height: 2px;
+      background-color: #7d7d7d;
+      transition: background-color 0.3s ease;
+    }
+
+    .hamburger-menu:hover .hamburger-line {
+      background-color: #d4d4d4;
+    }
+
+    /* Content */
+    .center {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    h1 {
+      font-family: 'Sigmar', cursive;
+      font-size: 4.5rem;
+      color: #d4d4d4;
+      margin: 0;
+    }
+
+    h2 {
+      font-family: 'Oooh Baby', cursive;
+      font-size: 3rem;
+      color: #d4d4d4;
+      margin: 5px 0 0;
+    }
+
+    .custom-button {
+      margin-top: 24px;
+      background-color: #2a2a2a;
+      color: #7d7d7d;
+      border-radius: 50px;
+      padding: 12px 30px;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .custom-button:hover {
+      background-color: #3a3a3a;
+      color: #d4d4d4;
+      border-color: #d4d4d4;
+    }
+
+    .custom-button.pressed {
+      background-color: #4a4a4a;
+    }
+
+    .blurred {
+      filter: blur(3px);
+      transition: filter 0.3s ease;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Cursor -->
+  <div id="glow" class="cursor-glow"></div>
+  <div id="dot" class="cursor-dot"></div>
+  <div id="circle" class="cursor-circle"></div>
+
+  <!-- Hamburger -->
+  <button id="hamburger" class="hamburger-menu">
+    <div class="hamburger-line"></div>
+    <div class="hamburger-line"></div>
+    <div class="hamburger-line"></div>
+  </button>
+
+  <!-- Main Content -->
+  <div class="center">
+    <div>
+      <h1 id="title">Anurag Sur</h1>
+      <h2 id="subtitle">Product Designer.</h2>
+
+      <button id="cta" class="custom-button">
+        Know more about me
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const dot = document.getElementById('dot');
+    const circle = document.getElementById('circle');
+    const glow = document.getElementById('glow');
+    const hamburger = document.getElementById('hamburger');
+    const cta = document.getElementById('cta');
+
+    let hoveringUI = false;
+
+    window.addEventListener('mousemove', (e) => {
+      const x = e.clientX;
+      const y = e.clientY;
+
+      dot.style.left = circle.style.left = glow.style.left = x + 'px';
+      dot.style.top = circle.style.top = glow.style.top = y + 'px';
+    });
+
+    function setGolden(state) {
+      [dot, circle, glow].forEach(el => {
+        el.classList.toggle('golden', state);
+      });
+    }
+
+    [hamburger, cta].forEach(el => {
+      el.addEventListener('mouseenter', () => setGolden(true));
+      el.addEventListener('mouseleave', () => setGolden(false));
+
+      el.addEventListener('mousedown', () => el.classList.add('pressed'));
+      el.addEventListener('mouseup', () => el.classList.remove('pressed'));
+    });
+  </script>
+
+</body>
+</html>
