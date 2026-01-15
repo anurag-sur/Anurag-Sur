@@ -6,11 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Sigmar&family=Oooh+Baby&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sigmar&family=Oooh+Baby&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     * {
-      cursor: none;
+      cursor: none !important;
       user-select: none;
     }
 
@@ -19,7 +19,26 @@
       background-color: #222323;
       min-height: 100vh;
       overflow: hidden;
-      font-family: Helvetica, Arial, sans-serif;
+      font-family: 'Inter', sans-serif;
+      cursor: none !important;
+    }
+
+    /* ===== Pages ===== */
+    .page {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    .page.active {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     /* ===== Custom Cursor ===== */
@@ -45,6 +64,11 @@
       z-index: 9998;
       transform: translate(-50%, -50%);
       transition: all 0.15s ease-out;
+    }
+
+    .cursor-circle.enlarged {
+      width: 70px;
+      height: 70px;
     }
 
     .cursor-glow {
@@ -111,6 +135,53 @@
       background-color: #d4d4d4;
     }
 
+    /* ===== Back Button ===== */
+    .back-button {
+      position: fixed;
+      top: 30px;
+      right: 30px;
+      width: 64px;
+      height: 64px;
+      background-color: #2a2a2a;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .back-button.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .back-button:hover {
+      background-color: #3a3a3a;
+      border-color: #d4d4d4;
+    }
+
+    .back-button.pressed {
+      background-color: #4a4a4a;
+    }
+
+    .back-arrow {
+      width: 12px;
+      height: 12px;
+      border-left: 3px solid #7d7d7d;
+      border-bottom: 3px solid #7d7d7d;
+      transform: rotate(45deg);
+      transition: border-color 0.3s ease;
+      margin-left: 4px;
+    }
+
+    .back-button:hover .back-arrow {
+      border-color: #d4d4d4;
+    }
+
     /* ===== Layout ===== */
     .center {
       min-height: 100vh;
@@ -122,7 +193,7 @@
 
     h1 {
       font-family: 'Sigmar', cursive;
-      font-size: 6rem;
+      font-size: clamp(3.5rem, 10vw, 8rem);
       color: #d4d4d4;
       margin: 0;
       line-height: 1;
@@ -131,9 +202,9 @@
 
     h2 {
       font-family: 'Oooh Baby', cursive;
-      font-size: 3.5rem;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
       color: #d4d4d4;
-      margin-top: 5px; /* closer to h1 */
+      margin-top: 5px;
       line-height: 1;
     }
 
@@ -143,8 +214,9 @@
       color: #7d7d7d;
       border-radius: 999px;
       padding: 16px 44px;
-      font-size: 1.15rem;
-      font-weight: 500;
+      font-size: clamp(1rem, 2.5vw, 1.3rem);
+      font-weight: 400;
+      font-family: 'Inter', sans-serif;
       border: 2px solid transparent;
       transition: all 0.3s ease;
     }
@@ -153,11 +225,80 @@
       background-color: #3a3a3a;
       color: #d4d4d4;
       border-color: #d4d4d4;
-      transform: scale(1.03);
     }
 
     .custom-button.pressed {
       background-color: #4a4a4a;
+    }
+
+    /* ===== Fade In Animation ===== */
+    .fade-in {
+      opacity: 0;
+      animation: fadeIn 1.2s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    .delay-1 {
+      animation-delay: 0.2s;
+    }
+
+    .delay-2 {
+      animation-delay: 0.4s;
+    }
+
+    .delay-3 {
+      animation-delay: 0.6s;
+    }
+
+    /* ===== Cards ===== */
+    .cards-container {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+      align-items: stretch;
+      flex-wrap: wrap;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background-color: #2a2a2a;
+      border: 2px solid transparent;
+      border-radius: 20px;
+      padding: 40px 30px;
+      flex: 1;
+      min-width: 280px;
+      max-width: 350px;
+      transition: all 0.3s ease;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .card:hover {
+      background-color: #3a3a3a;
+      border-color: #d4d4d4;
+    }
+
+    .card h3 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      color: #d4d4d4;
+      margin: 0 0 20px 0;
+    }
+
+    .card p {
+      font-family: 'Inter', sans-serif;
+      color: #a0a0a0;
+      font-size: 1rem;
+      line-height: 1.6;
+      margin: 0;
     }
   </style>
 </head>
@@ -170,21 +311,86 @@
   <div id="circle" class="cursor-circle"></div>
 
   <!-- Hamburger -->
-  <button id="hamburger" class="hamburger-menu">
+  <button id="hamburger" class="hamburger-menu fade-in">
     <div class="hamburger-line"></div>
     <div class="hamburger-line"></div>
     <div class="hamburger-line"></div>
   </button>
 
-  <!-- Main Content -->
-  <div class="center">
-    <div>
-      <h1>Anurag Sur</h1>
-      <h2>Product Designer</h2>
+  <!-- Back Button -->
+  <button id="backButton" class="back-button">
+    <div class="back-arrow"></div>
+  </button>
 
-      <button id="cta" class="custom-button">
-        Know more about me
-      </button>
+  <!-- Home Page -->
+  <div id="homePage" class="page active">
+    <div class="center">
+      <div>
+        <h1 class="fade-in delay-1">Anurag Sur</h1>
+        <h2 class="fade-in delay-1">Product Designer</h2>
+
+        <button id="cta" class="custom-button fade-in delay-3">
+          Know more about me
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- About Page -->
+  <div id="aboutPage" class="page">
+    <div class="center">
+      <div class="cards-container">
+        <div class="card" id="skillsCard">
+          <h3>Skills</h3>
+          <p></p>
+        </div>
+
+        <div class="card" id="experienceCard">
+          <h3>Experience</h3>
+          <p></p>
+        </div>
+
+        <div class="card" id="achievementsCard">
+          <h3>Achievements</h3>
+          <p></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skills Page -->
+  <div id="skillsPage" class="page">
+    <div class="center">
+      <div>
+        <h1 style="font-family: 'Inter', sans-serif; font-weight: 700; color: #d4d4d4; font-size: clamp(2.5rem, 6vw, 4rem);">Skills</h1>
+        <p style="color: #a0a0a0; font-size: 1.2rem; max-width: 700px; margin: 20px auto; line-height: 1.8;">
+          Detailed information about your skills goes here. You can expand on your design expertise, tools you master, and methodologies you follow.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Experience Page -->
+  <div id="experiencePage" class="page">
+    <div class="center">
+      <div>
+        <h1 style="font-family: 'Inter', sans-serif; font-weight: 700; color: #d4d4d4; font-size: clamp(2.5rem, 6vw, 4rem);">Experience</h1>
+        <p style="color: #a0a0a0; font-size: 1.2rem; max-width: 700px; margin: 20px auto; line-height: 1.8;">
+          Your professional journey, roles, companies, and impact. Share the story of your career growth and key projects.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Achievements Page -->
+  <div id="achievementsPage" class="page">
+    <div class="center">
+      <div>
+        <h1 style="font-family: 'Inter', sans-serif; font-weight: 700; color: #d4d4d4; font-size: clamp(2.5rem, 6vw, 4rem);">Achievements</h1>
+        <p style="color: #a0a0a0; font-size: 1.2rem; max-width: 700px; margin: 20px auto; line-height: 1.8;">
+          Awards, recognition, successful launches, and milestones that showcase your impact and excellence in design.
+        </p>
+      </div>
     </div>
   </div>
 
@@ -194,11 +400,13 @@
     const glow = document.getElementById('glow');
     const hamburger = document.getElementById('hamburger');
     const cta = document.getElementById('cta');
+    const backButton = document.getElementById('backButton');
 
     function setGolden(state) {
       [dot, circle, glow].forEach(el => {
         el.classList.toggle('golden', state);
       });
+      circle.classList.toggle('enlarged', state);
     }
 
     window.addEventListener('mousemove', (e) => {
@@ -214,6 +422,52 @@
       el.addEventListener('mouseleave', () => setGolden(false));
       el.addEventListener('mousedown', () => el.classList.add('pressed'));
       el.addEventListener('mouseup', () => el.classList.remove('pressed'));
+    });
+
+    // Back button interactions
+    backButton.addEventListener('mouseenter', () => setGolden(true));
+    backButton.addEventListener('mouseleave', () => setGolden(false));
+    backButton.addEventListener('mousedown', () => backButton.classList.add('pressed'));
+    backButton.addEventListener('mouseup', () => backButton.classList.remove('pressed'));
+
+    // Page Navigation
+    const skillsCard = document.getElementById('skillsCard');
+    const experienceCard = document.getElementById('experienceCard');
+    const achievementsCard = document.getElementById('achievementsCard');
+
+    let previousPage = 'homePage';
+
+    function showPage(pageId) {
+      const currentActivePage = document.querySelector('.page.active');
+      if (currentActivePage) {
+        previousPage = currentActivePage.id;
+      }
+
+      document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+      });
+      document.getElementById(pageId).classList.add('active');
+
+      // Show/hide back button
+      if (pageId === 'homePage') {
+        backButton.classList.remove('visible');
+      } else {
+        backButton.classList.add('visible');
+      }
+    }
+
+    cta.addEventListener('click', () => showPage('aboutPage'));
+    hamburger.addEventListener('click', () => showPage('homePage'));
+    backButton.addEventListener('click', () => showPage(previousPage));
+    
+    skillsCard.addEventListener('click', () => showPage('skillsPage'));
+    experienceCard.addEventListener('click', () => showPage('experiencePage'));
+    achievementsCard.addEventListener('click', () => showPage('achievementsPage'));
+
+    // Card hover effects
+    [skillsCard, experienceCard, achievementsCard].forEach(card => {
+      card.addEventListener('mouseenter', () => setGolden(true));
+      card.addEventListener('mouseleave', () => setGolden(false));
     });
   </script>
 
