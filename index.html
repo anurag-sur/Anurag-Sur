@@ -356,16 +356,34 @@
         </div>
       </div>
     </div>
+    
+    <button id="interestsCta" class="custom-button" style="position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);">
+      My Interests ↓
+    </button>
   </div>
 
   <!-- Skills Page -->
   <div id="skillsPage" class="page">
     <div class="center">
       <div>
-        <h1 style="font-family: 'Inter', sans-serif; font-weight: 700; color: #d4d4d4; font-size: clamp(2.5rem, 6vw, 4rem);">Skills</h1>
-        <p style="color: #a0a0a0; font-size: 1.2rem; max-width: 700px; margin: 20px auto; line-height: 1.8;">
-          Detailed information about your skills goes here. You can expand on your design expertise, tools you master, and methodologies you follow.
-        </p>
+        <h1 style="font-family: 'Inter', sans-serif; font-weight: 700; color: #d4d4d4; font-size: clamp(2.5rem, 6vw, 4rem); margin-bottom: 40px;">Skills</h1>
+        
+        <div class="cards-container">
+          <div class="card">
+            <h3>CAD Design</h3>
+            <p>Proficient in SolidWorks, AutoCAD, and Fusion 360 for creating detailed 3D models and technical drawings.</p>
+          </div>
+
+          <div class="card">
+            <h3>CAM Programming</h3>
+            <p>Experience with CNC machining, toolpath optimization, and G-code generation for precision manufacturing.</p>
+          </div>
+
+          <div class="card">
+            <h3>Product Development</h3>
+            <p>End-to-end product design from concept sketching to final manufacturing-ready designs.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -374,10 +392,24 @@
   <div id="experiencePage" class="page">
     <div class="center">
       <div>
-        <h1 style="font-family: 'Inter', sans-serif; font-weight: 700; color: #d4d4d4; font-size: clamp(2.5rem, 6vw, 4rem);">Experience</h1>
-        <p style="color: #a0a0a0; font-size: 1.2rem; max-width: 700px; margin: 20px auto; line-height: 1.8;">
-          Your professional journey, roles, companies, and impact. Share the story of your career growth and key projects.
-        </p>
+        <h1 style="font-family: 'Inter', sans-serif; font-weight: 700; color: #d4d4d4; font-size: clamp(2.5rem, 6vw, 4rem); margin-bottom: 40px;">Experience</h1>
+        
+        <div class="cards-container">
+          <div class="card">
+            <h3>KAVACH</h3>
+            <p>Product Designer - Leading design initiatives for innovative safety solutions and protective equipment.</p>
+          </div>
+
+          <div class="card">
+            <h3>Design Projects</h3>
+            <p>Collaborated on multiple cross-functional projects involving mechanical design and prototyping.</p>
+          </div>
+
+          <div class="card">
+            <h3>Internships</h3>
+            <p>Gained hands-on experience with industrial design processes and manufacturing workflows.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -386,10 +418,50 @@
   <div id="achievementsPage" class="page">
     <div class="center">
       <div>
-        <h1 style="font-family: 'Inter', sans-serif; font-weight: 700; color: #d4d4d4; font-size: clamp(2.5rem, 6vw, 4rem);">Achievements</h1>
-        <p style="color: #a0a0a0; font-size: 1.2rem; max-width: 700px; margin: 20px auto; line-height: 1.8;">
-          Awards, recognition, successful launches, and milestones that showcase your impact and excellence in design.
-        </p>
+        <h1 style="font-family: 'Inter', sans-serif; font-weight: 700; color: #d4d4d4; font-size: clamp(2.5rem, 6vw, 4rem); margin-bottom: 40px;">Achievements</h1>
+        
+        <div class="cards-container">
+          <div class="card">
+            <h3>Academic Excellence</h3>
+            <p>Consistent top performer with exceptional grades and recognition across engineering coursework.</p>
+          </div>
+
+          <div class="card">
+            <h3>Design Competitions</h3>
+            <p>Participated in national-level design challenges and innovation hackathons.</p>
+          </div>
+
+          <div class="card">
+            <h3>Certifications</h3>
+            <p>Completed advanced certifications in CAD software and product design methodologies.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interests Page -->
+  <div id="interestsPage" class="page">
+    <div class="center">
+      <div>
+        <h1 style="font-family: 'Inter', sans-serif; font-weight: 700; color: #d4d4d4; font-size: clamp(2.5rem, 6vw, 4rem); margin-bottom: 40px;">My Interests</h1>
+        
+        <div class="cards-container">
+          <div class="card">
+            <h3>3D Printing</h3>
+            <p>Passionate about additive manufacturing and creating functional prototypes with emerging technologies.</p>
+          </div>
+
+          <div class="card">
+            <h3>Sustainable Design</h3>
+            <p>Exploring eco-friendly materials and design practices for a more sustainable future.</p>
+          </div>
+
+          <div class="card">
+            <h3>Innovation</h3>
+            <p>Always seeking new design challenges and opportunities to push creative boundaries.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -401,6 +473,7 @@
     const hamburger = document.getElementById('hamburger');
     const cta = document.getElementById('cta');
     const backButton = document.getElementById('backButton');
+    const interestsCta = document.getElementById('interestsCta');
 
     function setGolden(state) {
       [dot, circle, glow].forEach(el => {
@@ -417,7 +490,7 @@
       dot.style.top = circle.style.top = glow.style.top = y + 'px';
     });
 
-    [hamburger, cta].forEach(el => {
+    [hamburger, cta, interestsCta].forEach(el => {
       el.addEventListener('mouseenter', () => setGolden(true));
       el.addEventListener('mouseleave', () => setGolden(false));
       el.addEventListener('mousedown', () => el.classList.add('pressed'));
@@ -459,6 +532,7 @@
     cta.addEventListener('click', () => showPage('aboutPage'));
     hamburger.addEventListener('click', () => showPage('homePage'));
     backButton.addEventListener('click', () => showPage(previousPage));
+    interestsCta.addEventListener('click', () => showPage('interestsPage'));
     
     skillsCard.addEventListener('click', () => showPage('skillsPage'));
     experienceCard.addEventListener('click', () => showPage('experiencePage'));
