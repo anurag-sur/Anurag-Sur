@@ -1,271 +1,550 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Anurag Sur</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <title>Anurag Sur</title>
+  <link rel="icon" type="image/x-icon" href="/webicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<link href="https://fonts.googleapis.com/css2?family=Sigmar&family=Oooh+Baby&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Sigmar&family=Oooh+Baby&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<style>
-/* ---------- RESET ---------- */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'Inter', sans-serif;
-  background: #222323;
-  color: #d4d4d4;
-  overflow: hidden;
-}
+  <style>
+    * {
+      cursor: none !important;
+      user-select: none;
+    }
 
-/* Desktop-only cursor removal */
-@media (pointer: fine) {
-  * { cursor: none !important; }
-}
+    body {
+      margin: 0;
+      background-color: #222323;
+      min-height: 100vh;
+      overflow: hidden;
+      font-family: 'Inter', sans-serif;
+      cursor: none !important;
+    }
 
-/* ---------- CURSOR ---------- */
-.cursor-dot, .cursor-ring, .cursor-glow {
-  position: fixed;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: 9999;
-}
-.cursor-dot {
-  width: 8px;
-  height: 8px;
-  background: #d4d4d4;
-  border-radius: 50%;
-}
-.cursor-ring {
-  width: 42px;
-  height: 42px;
-  border: 2px solid #d4d4d4;
-  border-radius: 50%;
-  transition: 0.25s ease;
-}
-.cursor-glow {
-  width: 220px;
-  height: 220px;
-  background: radial-gradient(circle, rgba(212,212,212,0.14), transparent 70%);
-  border-radius: 50%;
-  mix-blend-mode: screen;
-  transition: 0.4s ease;
-}
+    /* ===== Pages ===== */
+    .page {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
 
-.intent .cursor-ring { width: 64px; height: 64px; }
-.focus .cursor-glow { opacity: 0.35; }
-.commit .cursor-ring { width: 72px; height: 72px; }
+    .page.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
 
-/* ---------- SECTIONS ---------- */
-.track {
-  position: fixed;
-  inset: 0;
-}
-.section {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 10vw;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(60px);
-  transition:
-    transform 0.6s cubic-bezier(0.4,0,0.2,1),
-    opacity 0.6s ease;
-}
-.section.active {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-.section.exit-up {
-  transform: translateY(-80px);
-  opacity: 0;
-}
-.section.exit-down {
-  transform: translateY(80px);
-  opacity: 0;
-}
+    /* ===== Custom Cursor ===== */
+    .cursor-dot {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      background-color: #d4d4d4;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: background-color 0.3s ease;
+    }
 
-/* ---------- TYPOGRAPHY ---------- */
-h1 {
-  font-family: 'Sigmar', cursive;
-  font-size: clamp(3.5rem, 9vw, 6.5rem);
-  margin-bottom: 20px;
-}
-h2 {
-  font-family: 'Oooh Baby', cursive;
-  font-size: clamp(2.2rem, 6vw, 4rem);
-}
-p {
-  font-size: clamp(1.05rem, 2vw, 1.2rem);
-  line-height: 1.7;
-  color: #a0a0a0;
-}
+    .cursor-circle {
+      position: fixed;
+      width: 44px;
+      height: 44px;
+      border: 2px solid #d4d4d4;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: all 0.15s ease-out;
+    }
 
-/* ---------- CONTENT BLOCK ---------- */
-.block {
-  max-width: 780px;
-}
+    .cursor-circle.enlarged {
+      width: 70px;
+      height: 70px;
+    }
 
-/* ---------- UTILITY ---------- */
-.dim { opacity: 0.7; }
+    .cursor-glow {
+      position: fixed;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(212,212,212,0.15) 0%, rgba(212,212,212,0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9997;
+      transform: translate(-50%, -50%);
+      transition: all 0.2s ease-out;
+      mix-blend-mode: screen;
+    }
 
-/* ---------- DEBUG ---------- */
-.debug {
-  position: fixed;
-  inset: 0;
-  border: 1px dashed rgba(255,255,255,0.15);
-  pointer-events: none;
-  display: none;
-}
-.debug.show { display: block; }
-</style>
+    .golden.cursor-dot {
+      background-color: #a0a0a0;
+    }
+
+    .golden.cursor-circle {
+      border-color: #a0a0a0;
+    }
+
+    .golden.cursor-glow {
+      background: radial-gradient(circle, rgba(160,160,160,0.15) 0%, rgba(160,160,160,0) 70%);
+    }
+
+    /* ===== Hamburger ===== */
+    .hamburger-menu {
+      position: fixed;
+      top: 30px;
+      left: 30px;
+      width: 64px;
+      height: 64px;
+      background-color: #2a2a2a;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .hamburger-menu:hover {
+      background-color: #3a3a3a;
+      border-color: #d4d4d4;
+    }
+
+    .hamburger-menu.pressed {
+      background-color: #4a4a4a;
+    }
+
+    .hamburger-line {
+      width: 26px;
+      height: 2px;
+      background-color: #7d7d7d;
+      transition: background-color 0.3s ease;
+    }
+
+    .hamburger-menu:hover .hamburger-line {
+      background-color: #d4d4d4;
+    }
+
+    /* ===== Back Button ===== */
+    .back-button {
+      position: fixed;
+      top: 30px;
+      right: 30px;
+      width: 64px;
+      height: 64px;
+      background-color: #2a2a2a;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .back-button.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .back-button:hover {
+      background-color: #3a3a3a;
+      border-color: #d4d4d4;
+    }
+
+    .back-button.pressed {
+      background-color: #4a4a4a;
+    }
+
+    .back-arrow {
+      width: 12px;
+      height: 12px;
+      border-left: 3px solid #7d7d7d;
+      border-bottom: 3px solid #7d7d7d;
+      transform: rotate(45deg);
+      transition: border-color 0.3s ease;
+      margin-left: 4px;
+    }
+
+    .back-button:hover .back-arrow {
+      border-color: #d4d4d4;
+    }
+
+    /* ===== Layout ===== */
+    .center {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    h1 {
+      font-family: 'Sigmar', cursive;
+      font-size: clamp(3.5rem, 10vw, 8rem);
+      color: #d4d4d4;
+      margin: 0;
+      line-height: 1;
+      letter-spacing: 0.04em;
+    }
+
+    h2 {
+      font-family: 'Oooh Baby', cursive;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      color: #d4d4d4;
+      margin-top: 5px;
+      line-height: 1;
+    }
+
+    .custom-button {
+      margin-top: 2px;
+      background-color: #2a2a2a;
+      color: #7d7d7d;
+      border-radius: 999px;
+      padding: 16px 44px;
+      font-size: clamp(1rem, 2.5vw, 1.3rem);
+      font-weight: 400;
+      font-family: 'Inter', sans-serif;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .custom-button:hover {
+      background-color: #3a3a3a;
+      color: #d4d4d4;
+      border-color: #d4d4d4;
+    }
+
+    .custom-button.pressed {
+      background-color: #4a4a4a;
+    }
+
+    /* ===== Fade In Animation ===== */
+    .fade-in {
+      opacity: 0;
+      animation: fadeIn 1.2s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    .delay-1 {
+      animation-delay: 0.2s;
+    }
+
+    .delay-2 {
+      animation-delay: 0.4s;
+    }
+
+    .delay-3 {
+      animation-delay: 0.6s;
+    }
+
+    /* ===== Cards ===== */
+    .cards-container {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+      align-items: stretch;
+      flex-wrap: wrap;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background-color: #2a2a2a;
+      border: 2px solid transparent;
+      border-radius: 20px;
+      padding: 40px 30px;
+      flex: 1;
+      min-width: 280px;
+      max-width: 350px;
+      transition: all 0.3s ease;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .card:hover {
+      background-color: #3a3a3a;
+      border-color: #d4d4d4;
+    }
+
+    .card h3 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      color: #d4d4d4;
+      margin: 0 0 20px 0;
+    }
+
+    .card p {
+      font-family: 'Inter', sans-serif;
+      color: #a0a0a0;
+      font-size: 1rem;
+      line-height: 1.6;
+      margin: 0;
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- Cursor -->
-<div class="cursor-glow"></div>
-<div class="cursor-ring"></div>
-<div class="cursor-dot"></div>
+  <!-- Cursor -->
+  <div id="glow" class="cursor-glow"></div>
+  <div id="dot" class="cursor-dot"></div>
+  <div id="circle" class="cursor-circle"></div>
 
-<!-- Debug -->
-<div class="debug"></div>
+  <!-- Hamburger -->
+  <button id="hamburger" class="hamburger-menu fade-in">
+    <div class="hamburger-line"></div>
+    <div class="hamburger-line"></div>
+    <div class="hamburger-line"></div>
+  </button>
 
-<!-- Sections -->
-<div class="track">
+  <!-- Back Button -->
+  <button id="backButton" class="back-button">
+    <div class="back-arrow"></div>
+  </button>
 
-  <!-- Landing -->
-  <section class="section active">
-    <div class="block">
-      <p class="dim">I’m interested in how ideas survive contact with reality.</p>
-      <h2 style="margin:40px 0">Most don’t.</h2>
-      <h1>Anurag Sur</h1>
+  <!-- Home Page -->
+  <div id="homePage" class="page active">
+    <div class="center">
+      <div>
+        <h1 class="fade-in delay-1">Anurag Sur</h1>
+        <h2 class="fade-in delay-1">Product Designer</h2>
+
+        <button id="cta" class="custom-button fade-in delay-3">
+          Know more about me
+        </button>
+      </div>
     </div>
-  </section>
+  </div>
 
-  <!-- Definition -->
-  <section class="section">
-    <div class="block">
-      <p>I build things.<br>Sometimes they work immediately.<br>Sometimes they fight back.</p>
-      <p style="margin-top:30px">I like that part.</p>
-      <p style="margin-top:40px">
-        Design isn’t aesthetics.<br>
-        It’s the moment where thinking is forced to become honest.
-      </p>
+  <!-- About Page -->
+  <div id="aboutPage" class="page">
+    <div class="center">
+      <div class="cards-container">
+        <div class="card" id="skillsCard">
+          <h3>Skills</h3>
+          <p>CAD-CAM Design</p>
+        </div>
+
+        <div class="card" id="experienceCard">
+          <h3>Experience</h3>
+          <p>Product Designer at KAVACH</p>
+        </div>
+
+        <div class="card" id="achievementsCard">
+          <h3>Achievements</h3>
+          <p>An Academic Weapon</p>
+        </div>
+      </div>
     </div>
-  </section>
+    
+    <button id="interestsCta" class="custom-button" style="position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);">
+      My Interests ↓
+    </button>
+  </div>
 
-  <!-- What I Build -->
-  <section class="section">
-    <div class="block">
-      <h2>What I build</h2>
-      <p style="margin-top:30px">
-        Products that have constraints, costs, tolerances, and consequences.
-      </p>
-      <p style="margin-top:20px">
-        CAD. CAM. Prototyping. Manufacturing.<br>
-        Tools to reduce uncertainty — not buzzwords.
-      </p>
-      <p style="margin-top:20px">
-        I don’t chase perfection.<br>I chase things that work.
-      </p>
+  <!-- Skills Page -->
+  <div id="skillsPage" class="page">
+    <div class="center">
+      <div>
+        <h1 style="font-family: 'Inter', sans-serif; font-weight: 700; color: #d4d4d4; font-size: clamp(2.5rem, 6vw, 4rem); margin-bottom: 40px;">Skills</h1>
+        
+        <div class="cards-container">
+          <div class="card">
+            <h3>CAD Design</h3>
+            <p>Proficient in SolidWorks, AutoCAD, and Fusion 360 for creating detailed 3D models and technical drawings.</p>
+          </div>
+
+          <div class="card">
+            <h3>CAM Programming</h3>
+            <p>Experience with CNC machining, toolpath optimization, and G-code generation for precision manufacturing.</p>
+          </div>
+
+          <div class="card">
+            <h3>Product Development</h3>
+            <p>End-to-end product design from concept sketching to final manufacturing-ready designs.</p>
+          </div>
+        </div>
+      </div>
     </div>
-  </section>
+  </div>
 
-  <!-- How I Think -->
-  <section class="section">
-    <div class="block">
-      <h2>How I think</h2>
-      <p style="margin-top:30px">
-        I’m suspicious of ideas that sound good but haven’t been tested.
-      </p>
-      <p style="margin-top:20px">
-        Iteration over inspiration.<br>
-        Constraints over freedom.<br>
-        Progress over polish.
-      </p>
-      <p style="margin-top:20px">
-        If something breaks, that’s information.
-      </p>
+  <!-- Experience Page -->
+  <div id="experiencePage" class="page">
+    <div class="center">
+      <div>
+        <h1 style="font-family: 'Inter', sans-serif; font-weight: 700; color: #d4d4d4; font-size: clamp(2.5rem, 6vw, 4rem); margin-bottom: 40px;">Experience</h1>
+        
+        <div class="cards-container">
+          <div class="card">
+            <h3>KAVACH</h3>
+            <p>Product Designer - Leading design initiatives for innovative safety solutions and protective equipment.</p>
+          </div>
+
+          <div class="card">
+            <h3>Design Projects</h3>
+            <p>Collaborated on multiple cross-functional projects involving mechanical design and prototyping.</p>
+          </div>
+
+          <div class="card">
+            <h3>Internships</h3>
+            <p>Gained hands-on experience with industrial design processes and manufacturing workflows.</p>
+          </div>
+        </div>
+      </div>
     </div>
-  </section>
+  </div>
 
-  <!-- Pride -->
-  <section class="section">
-    <div class="block">
-      <h2>Things I’m proud of</h2>
-      <p style="margin-top:30px">— Building real products</p>
-      <p>— Learning manufacturing the hard way</p>
-      <p>— Staying curious after things go wrong</p>
+  <!-- Achievements Page -->
+  <div id="achievementsPage" class="page">
+    <div class="center">
+      <div>
+        <h1 style="font-family: 'Inter', sans-serif; font-weight: 700; color: #d4d4d4; font-size: clamp(2.5rem, 6vw, 4rem); margin-bottom: 40px;">Achievements</h1>
+        
+        <div class="cards-container">
+          <div class="card">
+            <h3>Academic Excellence</h3>
+            <p>Consistent top performer with exceptional grades and recognition across engineering coursework.</p>
+          </div>
+
+          <div class="card">
+            <h3>Design Competitions</h3>
+            <p>Participated in national-level design challenges and innovation hackathons.</p>
+          </div>
+
+          <div class="card">
+            <h3>Certifications</h3>
+            <p>Completed advanced certifications in CAD software and product design methodologies.</p>
+          </div>
+        </div>
+      </div>
     </div>
-  </section>
+  </div>
 
-  <!-- Exit -->
-  <section class="section">
-    <div class="block">
-      <p>
-        Most people stop when things get difficult.<br>
-        I usually start paying attention.
-      </p>
+  <!-- Interests Page -->
+  <div id="interestsPage" class="page">
+    <div class="center">
+      <div>
+        <h1 style="font-family: 'Inter', sans-serif; font-weight: 700; color: #d4d4d4; font-size: clamp(2.5rem, 6vw, 4rem); margin-bottom: 40px;">My Interests</h1>
+        
+        <div class="cards-container">
+          <div class="card">
+            <h3>3D Printing</h3>
+            <p>Passionate about additive manufacturing and creating functional prototypes with emerging technologies.</p>
+          </div>
+
+          <div class="card">
+            <h3>Books and Music</h3>
+            <p>Favorite pastimes include reading fiction and listening to the most diverse playlist anyone can conjure.</p></p>
+          </div>
+
+          <div class="card">
+            <h3>Innovation</h3>
+            <p>Always seeking new design challenges and opportunities to push creative boundaries.</p>
+          </div>
+        </div>
+      </div>
     </div>
-  </section>
+  </div>
 
-</div>
+  <script>
+    const dot = document.getElementById('dot');
+    const circle = document.getElementById('circle');
+    const glow = document.getElementById('glow');
+    const hamburger = document.getElementById('hamburger');
+    const cta = document.getElementById('cta');
+    const backButton = document.getElementById('backButton');
+    const interestsCta = document.getElementById('interestsCta');
 
-<script>
-/* ---------- CURSOR ---------- */
-const dot = document.querySelector('.cursor-dot');
-const ring = document.querySelector('.cursor-ring');
-const glow = document.querySelector('.cursor-glow');
+    function setGolden(state) {
+      [dot, circle, glow].forEach(el => {
+        el.classList.toggle('golden', state);
+      });
+      circle.classList.toggle('enlarged', state);
+    }
 
-let idleTimer;
-window.addEventListener('mousemove', e => {
-  dot.style.left = ring.style.left = glow.style.left = e.clientX + 'px';
-  dot.style.top  = ring.style.top  = glow.style.top  = e.clientY + 'px';
-  document.body.classList.remove('focus');
-  clearTimeout(idleTimer);
-  idleTimer = setTimeout(() => document.body.classList.add('focus'), 2500);
-});
+    window.addEventListener('mousemove', (e) => {
+      const x = e.clientX;
+      const y = e.clientY;
 
-/* ---------- SCROLL ENGINE ---------- */
-const sections = [...document.querySelectorAll('.section')];
-let index = 0;
-let locked = false;
+      dot.style.left = circle.style.left = glow.style.left = x + 'px';
+      dot.style.top = circle.style.top = glow.style.top = y + 'px';
+    });
 
-function go(next) {
-  if (locked || next < 0 || next >= sections.length) return;
-  locked = true;
+    [hamburger, cta, interestsCta].forEach(el => {
+      el.addEventListener('mouseenter', () => setGolden(true));
+      el.addEventListener('mouseleave', () => setGolden(false));
+      el.addEventListener('mousedown', () => el.classList.add('pressed'));
+      el.addEventListener('mouseup', () => el.classList.remove('pressed'));
+    });
 
-  const current = sections[index];
-  const target = sections[next];
+    // Back button interactions
+    backButton.addEventListener('mouseenter', () => setGolden(true));
+    backButton.addEventListener('mouseleave', () => setGolden(false));
+    backButton.addEventListener('mousedown', () => backButton.classList.add('pressed'));
+    backButton.addEventListener('mouseup', () => backButton.classList.remove('pressed'));
 
-  current.classList.add(next > index ? 'exit-up' : 'exit-down');
-  target.classList.add('active');
+    // Page Navigation
+    const skillsCard = document.getElementById('skillsCard');
+    const experienceCard = document.getElementById('experienceCard');
+    const achievementsCard = document.getElementById('achievementsCard');
 
-  document.body.classList.add('commit');
+    let previousPage = 'homePage';
 
-  setTimeout(() => {
-    current.className = 'section';
-    index = next;
-    locked = false;
-    document.body.classList.remove('commit');
-  }, 650);
-}
+    function showPage(pageId) {
+      const currentActivePage = document.querySelector('.page.active');
+      if (currentActivePage) {
+        previousPage = currentActivePage.id;
+      }
 
-window.addEventListener('wheel', e => {
-  if (e.deltaY > 30) go(index + 1);
-  if (e.deltaY < -30) go(index - 1);
-});
+      document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+      });
+      document.getElementById(pageId).classList.add('active');
 
-/* ---------- DEBUG MODE ---------- */
-window.addEventListener('keydown', e => {
-  if (e.key === '.') document.querySelector('.debug').classList.toggle('show');
-});
-</script>
+      // Show/hide back button
+      if (pageId === 'homePage') {
+        backButton.classList.remove('visible');
+      } else {
+        backButton.classList.add('visible');
+      }
+    }
+
+    cta.addEventListener('click', () => showPage('aboutPage'));
+    hamburger.addEventListener('click', () => showPage('homePage'));
+    backButton.addEventListener('click', () => showPage(previousPage));
+    interestsCta.addEventListener('click', () => showPage('interestsPage'));
+    
+    skillsCard.addEventListener('click', () => showPage('skillsPage'));
+    experienceCard.addEventListener('click', () => showPage('experiencePage'));
+    achievementsCard.addEventListener('click', () => showPage('achievementsPage'));
+
+    // Card hover effects
+    [skillsCard, experienceCard, achievementsCard].forEach(card => {
+      card.addEventListener('mouseenter', () => setGolden(true));
+      card.addEventListener('mouseleave', () => setGolden(false));
+    });
+  </script>
 
 </body>
 </html>
