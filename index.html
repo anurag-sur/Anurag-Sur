@@ -1,534 +1,1099 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Anurag Sur</title>
-  <link rel="icon" type="image/x-icon" href="/webicon.png">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anurag Sur</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d0d0d'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-family='Inter,sans-serif' font-weight='900' font-size='14' fill='white' letter-spacing='-1'%3EAS%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Sigmar&family=Oooh+Baby&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+/* ─────────────────────────────────────────
+   RESET & BASE
+───────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: #0d0d0d;
+  color: #e8e8e8;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  overflow-x: hidden;
+  cursor: none;
+}
+button { background: none; border: none; font: inherit; color: inherit; cursor: none; text-align: inherit; }
+a { cursor: none; }
 
-  <style>
-    * {
-      cursor: none !important;
-      user-select: none;
-    }
+/* ─────────────────────────────────────────
+   NOISE TEXTURE OVERLAY
+───────────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.022;
+  pointer-events: none;
+  z-index: 9500;
+}
 
-    body {
-      margin: 0;
-      background-color: #222323;
-      min-height: 100vh;
-      overflow: hidden;
-      font-family: 'Inter', sans-serif;
-      cursor: none !important;
-    }
+/* ─────────────────────────────────────────
+   CURSOR
+───────────────────────────────────────── */
+#cur {
+  position: fixed;
+  width: 16px; height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: difference;
+  transition: width .3s cubic-bezier(0.16,1,.3,1), height .3s cubic-bezier(0.16,1,.3,1);
+}
+#cur.hovering { width: 48px; height: 48px; }
+#cur-ring {
+  position: fixed;
+  width: 48px; height: 48px;
+  border: 1px solid rgba(255,255,255,0.45);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: opacity .3s ease;
+}
+#cur-ring.hovering { opacity: 0; }
 
-    /* ===== Pages ===== */
-    .page {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      z-index: 100;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.5s ease;
-    }
+/* ─────────────────────────────────────────
+   SCROLL PROGRESS BAR
+───────────────────────────────────────── */
+#prog {
+  position: fixed; top: 0; left: 0;
+  height: 2px;
+  background: rgba(255,255,255,0.35);
+  z-index: 9800;
+  width: 0%;
+  transition: width .08s linear;
+}
 
-    .page.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
+/* ─────────────────────────────────────────
+   NAV
+───────────────────────────────────────── */
+nav {
+  position: fixed;
+  top: 24px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  background: rgba(22,22,22,0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 100px;
+  padding: 8px 12px 8px 20px;
+  gap: 0;
+}
+.nav-brand {
+  font-weight: 600;
+  font-size: .85rem;
+  letter-spacing: .08em;
+  color: #fff;
+  text-decoration: none;
+  padding-right: 18px;
+  margin-right: 6px;
+  border-right: 1px solid rgba(255,255,255,0.15);
+}
+.nav-links { display: flex; gap: 2px; }
+.nav-a {
+  font-size: .78rem;
+  font-weight: 400;
+  color: rgba(255,255,255,0.55);
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 100px;
+  transition: color .2s, background .2s;
+  letter-spacing: .01em;
+}
+.nav-a:hover, .nav-a.on { color: #fff; }
+.nav-a.on { background: rgba(255,255,255,0.1); }
 
-    /* ===== Custom Cursor ===== */
-    .cursor-dot {
-      position: fixed;
-      width: 8px;
-      height: 8px;
-      background-color: #d4d4d4;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 9999;
-      transform: translate(-50%, -50%);
-      transition: background-color 0.3s ease;
-    }
+/* ─────────────────────────────────────────
+   LAYOUT UTILITIES
+───────────────────────────────────────── */
+.section-wrap { padding: 100px 80px; max-width: 1400px; margin: 0 auto; }
+.sec-label {
+  font-size: .68rem;
+  font-weight: 500;
+  letter-spacing: .28em;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  margin-bottom: 40px;
+}
 
-    .cursor-circle {
-      position: fixed;
-      width: 44px;
-      height: 44px;
-      border: 2px solid #d4d4d4;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 9998;
-      transform: translate(-50%, -50%);
-      transition: all 0.15s ease-out;
-    }
+/* ─────────────────────────────────────────
+   HERO
+───────────────────────────────────────── */
+#home {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 80px 72px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-label {
+  display: flex; align-items: center; gap: 14px;
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .22em;
+  color: rgba(255,255,255,0.38);
+  text-transform: uppercase;
+  margin-bottom: 18px;
+  opacity: 0;
+  animation: fadeUp .7s ease .4s forwards;
+}
+.hero-label::before {
+  content: '';
+  display: inline-block;
+  width: 40px; height: 1px;
+  background: rgba(255,255,255,0.3);
+}
+.hero-name {
+  font-weight: 900;
+  font-size: clamp(6rem, 14vw, 17rem);
+  line-height: .88;
+  letter-spacing: -.04em;
+  color: #fff;
+  overflow: hidden;
+  text-transform: uppercase;
+}
+.hero-name .ln { display: block; overflow: hidden; }
+.hero-name .ln span {
+  display: block;
+  transform: translateY(110%);
+  animation: slideUp .9s cubic-bezier(0.16,1,.3,1) forwards;
+}
+.hero-name .ln:nth-child(1) span { animation-delay: .5s; }
+.hero-name .ln:nth-child(2) span { animation-delay: .65s; }
+.hero-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-top: 48px;
+  gap: 40px;
+  opacity: 0;
+  animation: fadeUp .8s ease 1.1s forwards;
+}
+.hero-desc {
+  font-size: clamp(.85rem, 1vw, .98rem);
+  font-weight: 300;
+  line-height: 1.75;
+  color: rgba(255,255,255,0.45);
+  max-width: 440px;
+}
+.hero-actions { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+.btn-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: #fff;
+  color: #0d0d0d;
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 100px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  transition: background .25s;
+}
+.btn-pill:hover { background: #e0e0e0; }
+.socials { display: flex; gap: 4px; }
+.soc {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.12);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.45);
+  transition: border-color .25s, color .25s, background .25s;
+}
+.soc:hover { border-color: rgba(255,255,255,0.4); color: #fff; background: rgba(255,255,255,0.06); }
 
-    .cursor-circle.enlarged {
-      width: 70px;
-      height: 70px;
-    }
+/* ─────────────────────────────────────────
+   CARD SHARED
+───────────────────────────────────────── */
+.mastery-card, .port-card, .acc-card, .soul-card {
+  transition: border-color .3s ease, background .3s ease;
+}
+.card-title, .card-body, .card-icon,
+.acc-title, .acc-body, .acc-icon,
+.soul-icon, .soul-name,
+.port-name, .port-cat {
+  transition: color .3s ease, background .3s ease;
+}
 
-    .golden.cursor-dot {
-      background-color: #a0a0a0;
-    }
+/* ─────────────────────────────────────────
+   MASTERY
+───────────────────────────────────────── */
+#mastery { border-top: 1px solid rgba(255,255,255,0.06); }
+.mastery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  overflow: visible;
+}
+.mastery-card {
+  background: #161616;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  padding: 36px 32px;
+  position: relative;
+  overflow: hidden;
+  --gx: 50%; --gy: 50%;
+  transition: border-color .3s ease;
+}
+.mastery-card::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at var(--gx) var(--gy), rgba(255,255,255,0.055) 0%, transparent 65%);
+  opacity: 0;
+  transition: opacity .3s ease;
+  pointer-events: none;
+  border-radius: inherit;
+}
+.mastery-card:hover::after        { opacity: 1; }
+.mastery-card:hover               { border-color: rgba(255,255,255,0.18); }
+.mastery-card:hover .card-title   { color: #fff; }
+.mastery-card:hover .card-body    { color: rgba(255,255,255,0.65); }
+.mastery-card:hover .card-icon    { border-color: rgba(255,255,255,0.3); color: #fff; }
+.card-icon {
+  width: 44px; height: 44px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 28px;
+  color: rgba(255,255,255,0.6);
+}
+.card-title { font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 12px; letter-spacing: -.01em; }
+.card-body  { font-size: .83rem; font-weight: 300; line-height: 1.75; color: rgba(255,255,255,0.4); }
 
-    .golden.cursor-circle {
-      border-color: #a0a0a0;
-    }
+/* ─────────────────────────────────────────
+   PORTFOLIO
+───────────────────────────────────────── */
+#portfolio { border-top: 1px solid rgba(255,255,255,0.06); }
+.portfolio-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; }
+.portfolio-quote {
+  font-size: .82rem; font-weight: 300; font-style: italic;
+  color: rgba(255,255,255,0.28); max-width: 320px; line-height: 1.65; text-align: right;
+}
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  overflow: visible;
+}
+.port-card {
+  background: #141414;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+.port-card::before {
+  content: '';
+  position: absolute; left: 0; top: 12%; bottom: 12%;
+  width: 2px; background: rgba(255,255,255,0.6);
+  border-radius: 0 2px 2px 0;
+  transform: scaleY(0);
+  transform-origin: center;
+  transition: transform .35s cubic-bezier(0.34,1.56,0.64,1);
+}
+#medipen-card:hover::before { transform: scaleY(1); }
+#medipen-card:hover { background: #1a1a1a; border-color: rgba(255,255,255,0.18); }
+#medipen-card:hover .port-name { color: #fff; }
+#medipen-card:hover .port-expand-btn {
+  border-color: rgba(255,255,255,0.35);
+  color: #fff;
+  animation: pulse-ring 1.2s ease-in-out infinite;
+}
+@keyframes pulse-ring {
+  0%, 100% { box-shadow: 0 0 0 0px rgba(255,255,255,0.25); transform: scale(1); }
+  50%       { box-shadow: 0 0 0 6px rgba(255,255,255,0);   transform: scale(1.12); }
+}
+#medipen-card:hover .port-expand-btn.open {
+  animation: pulse-ring-open 1.2s ease-in-out infinite;
+}
+@keyframes pulse-ring-open {
+  0%, 100% { box-shadow: 0 0 0 0px rgba(255,255,255,0.25); transform: rotate(180deg) scale(1); }
+  50%       { box-shadow: 0 0 0 6px rgba(255,255,255,0);   transform: rotate(180deg) scale(1.12); }
+}
+.port-img {
+  width: 100%; aspect-ratio: 4/3; background: #1e1e1e;
+  position: relative; overflow: hidden;
+  border-radius: 16px 16px 0 0;
+}
+.port-img-inner { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; }
+.pi-1 { background: radial-gradient(ellipse at 35% 40%, #1a1a2e 0%, #0a0a0a 70%); }
+.pi-2 { background: radial-gradient(ellipse at 60% 35%, #1e1a10 0%, #0a0a0a 70%); }
+.pi-3 { background: radial-gradient(ellipse at 40% 40%, #0e1a1e 0%, #0a0a0a 70%); }
+.port-product-label {
+  font-weight: 900; font-size: 4.5rem; color: rgba(255,255,255,0.06);
+  letter-spacing: -.04em; position: absolute; bottom: 8px; right: 12px; text-transform: uppercase;
+}
+.port-info { padding: 22px 24px 24px; }
+.port-cat  { font-size: .62rem; font-weight: 500; letter-spacing: .2em; color: rgba(255,255,255,0.32); text-transform: uppercase; margin-bottom: 6px; }
+.port-name { font-size: 1.15rem; font-weight: 600; color: #fff; letter-spacing: -.01em; }
 
-    /* ===== Hamburger ===== */
-    .hamburger-menu {
-      position: fixed;
-      top: 30px;
-      left: 30px;
-      width: 64px;
-      height: 64px;
-      background-color: #2a2a2a;
-      border-radius: 50%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      border: 2px solid transparent;
-      transition: all 0.3s ease;
-      z-index: 1000;
-    }
+/* compact card row */
+.port-row {
+  display: flex; align-items: center; gap: 20px;
+  padding: 20px 24px;
+}
+.port-thumb {
+  width: 52px; height: 52px; border-radius: 12px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.port-row .port-info { padding: 0; flex: 1; }
+.port-expand-btn {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.12);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.4);
+  transition: border-color .25s, color .25s, transform .4s cubic-bezier(0.34,1.56,0.64,1);
+}
+.port-expand-btn:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+.port-expand-btn.open { transform: rotate(180deg); border-color: rgba(255,255,255,0.35); color: #fff; }
 
-    .hamburger-menu:hover {
-      background-color: #3a3a3a;
-      border-color: #d4d4d4;
-    }
+/* expandable description */
+.port-desc {
+  max-height: 0; overflow: hidden;
+  transition: max-height .5s cubic-bezier(0.16,1,.3,1), padding .4s ease;
+  padding: 0 24px;
+  border-top: 0px solid rgba(255,255,255,0.07);
+}
+.port-desc.open {
+  max-height: 300px;
+  padding: 20px 24px 24px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+.port-desc p {
+  font-size: .83rem; font-weight: 300; line-height: 1.75;
+  color: rgba(255,255,255,0.45); margin-bottom: 16px;
+}
+.port-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.port-tag {
+  font-size: .62rem; font-weight: 500; letter-spacing: .12em; text-transform: uppercase;
+  color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 100px; padding: 5px 12px;
+}
 
-    .hamburger-menu.pressed {
-      background-color: #4a4a4a;
-    }
+/* ─────────────────────────────────────────
+   JOURNEY
+───────────────────────────────────────── */
+#journey { border-top: 1px solid rgba(255,255,255,0.06); }
+.journey-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 56px; }
+.journey-mega {
+  font-weight: 900;
+  font-size: clamp(4rem, 10vw, 11rem);
+  line-height: .88; letter-spacing: -.04em; color: #fff; text-transform: uppercase;
+}
+.journey-sub { font-size: .82rem; font-weight: 300; color: rgba(255,255,255,0.28); max-width: 280px; line-height: 1.65; text-align: right; }
+.journey-list { display: flex; flex-direction: column; }
+.journey-item {
+  display: grid;
+  grid-template-columns: 120px 1fr 44px;
+  align-items: center;
+  gap: 32px;
+  padding: 28px 0;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  position: relative;
+}
+.journey-item:last-child { border-bottom: 1px solid rgba(255,255,255,0.07); }
+.journey-item::before {
+  content: '';
+  position: absolute; left: -80px; right: -80px; top: 0; bottom: 0;
+  background: rgba(255,255,255,0.025);
+  opacity: 0; transition: opacity .25s; pointer-events: none;
+}
+.journey-item:hover::before { opacity: 1; }
+.j-year    { font-size: .75rem; font-weight: 500; letter-spacing: .1em; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+.j-role    { font-size: 1.05rem; font-weight: 600; color: #fff; letter-spacing: -.01em; margin-bottom: 3px; }
+.j-company { font-size: .8rem; font-weight: 400; color: rgba(255,255,255,0.35); letter-spacing: .02em; }
+.j-arrow {
+  width: 36px; height: 36px;
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.3); justify-self: end;
+  transition: border-color .25s, color .25s, transform .25s;
+}
+.journey-item:hover .j-arrow { border-color: rgba(255,255,255,0.35); color: #fff; transform: rotate(-45deg); }
 
-    .hamburger-line {
-      width: 26px;
-      height: 2px;
-      background-color: #7d7d7d;
-      transition: background-color 0.3s ease;
-    }
+/* ─────────────────────────────────────────
+   ACCOLADES
+───────────────────────────────────────── */
+#accolades { border-top: 1px solid rgba(255,255,255,0.06); }
+.accolades-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  overflow: visible;
+}
+.acc-card {
+  background: #161616;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  padding: 32px;
+  display: flex; gap: 20px; align-items: flex-start;
+  position: relative;
+  overflow: hidden;
+  --gx: 50%; --gy: 50%;
+}
+.acc-card::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at var(--gx) var(--gy), rgba(255,255,255,0.05) 0%, transparent 65%);
+  opacity: 0;
+  transition: opacity .3s ease;
+  pointer-events: none;
+  border-radius: inherit;
+}
+.acc-card:hover::after            { opacity: 1; }
+.acc-card:hover                   { border-color: rgba(255,255,255,0.18); }
+.acc-card:hover .acc-title        { color: #fff; }
+.acc-card:hover .acc-body         { color: rgba(255,255,255,0.65); }
+.acc-card:hover .acc-icon         { background: rgba(255,255,255,0.1); color: #fff; }
+.acc-icon {
+  width: 40px; height: 40px; background: rgba(255,255,255,0.06); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  color: rgba(255,255,255,0.45);
+}
+.acc-title { font-size: .98rem; font-weight: 600; color: #fff; letter-spacing: -.01em; margin-bottom: 8px; }
+.acc-body  { font-size: .8rem; font-weight: 300; line-height: 1.7; color: rgba(255,255,255,0.38); }
 
-    .hamburger-menu:hover .hamburger-line {
-      background-color: #d4d4d4;
-    }
+/* ─────────────────────────────────────────
+   SOUL
+───────────────────────────────────────── */
+#soul { border-top: 1px solid rgba(255,255,255,0.06); }
+.soul-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  overflow: visible;
+}
+.soul-card {
+  background: #161616;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  padding: 40px 28px 32px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 16px; text-align: center; aspect-ratio: 1;
+  position: relative;
+}
+.soul-card:hover            { background: #e8e8e8; border-color: #fff; }
+.soul-icon                  { color: rgba(255,255,255,0.5); }
+.soul-card:hover .soul-icon { color: #111; }
+.soul-name { font-size: .68rem; font-weight: 700; letter-spacing: .18em; color: rgba(255,255,255,0.38); text-transform: uppercase; }
+.soul-card:hover .soul-name { color: #111; }
 
-    /* ===== Back Button ===== */
-    .back-button {
-      position: fixed;
-      top: 30px;
-      right: 30px;
-      width: 64px;
-      height: 64px;
-      background-color: #2a2a2a;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid transparent;
-      transition: all 0.3s ease;
-      z-index: 1000;
-      opacity: 0;
-      pointer-events: none;
-    }
+/* ─────────────────────────────────────────
+   CONTACT
+───────────────────────────────────────── */
+#contact { border-top: 1px solid rgba(255,255,255,0.06); }
+.contact-mega {
+  font-weight: 900; font-size: clamp(5rem, 14vw, 16rem);
+  line-height: .88; letter-spacing: -.04em; color: #fff;
+  margin-bottom: 20px; text-transform: uppercase;
+}
+.contact-sub { font-size: .88rem; font-weight: 300; color: rgba(255,255,255,0.38); margin-bottom: 48px; line-height: 1.65; }
+.contact-form-wrap {
+  background: #161616; border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px; padding: 36px 40px 40px;
+  max-width: 560px; margin: 0 auto; text-align: left;
+}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+.f-grp {
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.f-lbl { font-size: .62rem; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,0.3); }
+.f-inp, .f-ta {
+  background: transparent; border: none; outline: none;
+  color: rgba(255,255,255,0.6); font-family: 'Inter', sans-serif;
+  font-size: .88rem; font-weight: 300; caret-color: #fff; padding: 4px 0;
+}
+.f-inp::placeholder, .f-ta::placeholder { color: rgba(255,255,255,0.2); }
+.f-ta { height: 80px; resize: none; width: 100%; }
+.form-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 4px 0 20px; }
+.form-submit {
+  width: 100%; padding: 15px;
+  background: transparent;
+  color: rgba(255,255,255,0.7);
+  font-family: 'Inter', sans-serif; font-size: .72rem; font-weight: 500;
+  letter-spacing: .18em; text-transform: uppercase;
+  border: 1px solid rgba(255,255,255,0.15); border-radius: 100px; cursor: none;
+  margin-top: 8px; position: relative; overflow: hidden;
+  transition: color .3s ease, border-color .3s ease, background .3s ease;
+}
+.form-submit::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,0.06);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .4s cubic-bezier(0.16,1,.3,1);
+  border-radius: inherit;
+}
+.form-submit:hover { color: #fff; border-color: rgba(255,255,255,0.4); }
+.form-submit:hover::before { transform: scaleX(1); }
 
-    .back-button.visible {
-      opacity: 1;
-      pointer-events: auto;
-    }
+/* state: warning */
+.form-submit.state-warn {
+  border-color: rgba(234,179,8,0.5);
+  color: rgba(234,179,8,0.9);
+  background: rgba(234,179,8,0.06);
+}
+.form-submit.state-warn::before { transform: scaleX(0); }
 
-    .back-button:hover {
-      background-color: #3a3a3a;
-      border-color: #d4d4d4;
-    }
+/* state: success */
+.form-submit.state-ok {
+  border-color: rgba(74,222,128,0.5);
+  color: rgba(74,222,128,0.9);
+  background: rgba(74,222,128,0.06);
+}
+.form-submit.state-ok::before { transform: scaleX(0); }
 
-    .back-button.pressed {
-      background-color: #4a4a4a;
-    }
+/* state: error */
+.form-submit.state-err {
+  border-color: rgba(248,113,113,0.5);
+  color: rgba(248,113,113,0.9);
+  background: rgba(248,113,113,0.06);
+}
+.form-submit.state-err::before { transform: scaleX(0); }
 
-    .back-arrow {
-      width: 12px;
-      height: 12px;
-      border-left: 3px solid #7d7d7d;
-      border-bottom: 3px solid #7d7d7d;
-      transform: rotate(45deg);
-      transition: border-color 0.3s ease;
-      margin-left: 4px;
-    }
+/* state: loading */
+.form-submit.state-loading {
+  color: rgba(255,255,255,0.3);
+  border-color: rgba(255,255,255,0.1);
+}
 
-    .back-button:hover .back-arrow {
-      border-color: #d4d4d4;
-    }
+/* ─────────────────────────────────────────
+   FOOTER
+───────────────────────────────────────── */
+footer {
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding: 28px 80px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.footer-name { font-size: .72rem; font-weight: 500; letter-spacing: .08em; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+.footer-socials { display: flex; gap: 28px; }
+.footer-soc { font-size: .72rem; font-weight: 400; color: rgba(255,255,255,0.3); letter-spacing: .01em; transition: color .25s; }
+.footer-soc:hover { color: rgba(255,255,255,0.8); }
+.footer-avail { display: flex; align-items: center; gap: 8px; font-size: .72rem; font-weight: 400; color: rgba(255,255,255,0.3); }
+.avail-dot {
+  width: 8px; height: 8px; background: #4ade80; border-radius: 50%;
+  animation: pulse 2.5s ease-in-out infinite;
+}
 
-    /* ===== Layout ===== */
-    .center {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
+/* ─────────────────────────────────────────
+   KEYFRAMES
+───────────────────────────────────────── */
+@keyframes slideUp { from { transform: translateY(110%); } to { transform: translateY(0); } }
+@keyframes fadeUp  { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse   {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74,222,128,.4); }
+  50%       { opacity: .7; box-shadow: 0 0 0 6px rgba(74,222,128,0); }
+}
 
-    h1 {
-      font-family: 'Sigmar', cursive;
-      font-size: clamp(3.5rem, 10vw, 8rem);
-      color: #d4d4d4;
-      margin: 0;
-      line-height: 1;
-      letter-spacing: 0.04em;
-    }
+/* ─────────────────────────────────────────
+   SCROLL REVEAL
+───────────────────────────────────────── */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s ease, transform .8s ease; }
+.reveal.in { opacity: 1; transform: translateY(0); }
+.d1 { transition-delay: .08s; }
+.d2 { transition-delay: .16s; }
+.d3 { transition-delay: .24s; }
 
-    h2 {
-      font-family: 'Oooh Baby', cursive;
-      font-size: clamp(2.5rem, 6vw, 4.5rem);
-      color: #d4d4d4;
-      margin-top: 5px;
-      line-height: 1;
-    }
+/* ─────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .section-wrap { padding: 80px 48px; }
+  #home { padding: 0 48px 60px; }
+  footer { padding: 24px 48px; }
+  .mastery-grid { gap: 12px; }
+  .soul-grid { gap: 8px; }
+  .soul-card { padding: 24px 12px; }
+}
+@media (max-width: 768px) {
+  nav { top: 16px; padding: 7px 10px 7px 16px; }
+  .nav-a { padding: 7px 11px; font-size: .74rem; }
+  #home { padding: 0 28px 48px; }
+  .section-wrap { padding: 64px 28px; }
+  footer { padding: 20px 28px; flex-wrap: wrap; gap: 14px; }
+  .hero-bottom { flex-direction: column; align-items: flex-start; gap: 20px; }
+  .mastery-card { padding: 20px 16px; }
+  .portfolio-grid, .accolades-grid { grid-template-columns: 1fr; }
+  .portfolio-header { flex-direction: column; gap: 16px; }
+  .portfolio-quote { text-align: left; }
+  .journey-item { grid-template-columns: 80px 1fr 36px; gap: 16px; }
+  .journey-header { flex-direction: column; gap: 16px; align-items: flex-start; }
+  .journey-sub { text-align: left; }
+  .form-row { grid-template-columns: 1fr; }
+}
 
-    .custom-button {
-      margin-top: 2px;
-      background-color: #2a2a2a;
-      color: #7d7d7d;
-      border-radius: 999px;
-      padding: 16px 44px;
-      font-size: clamp(1rem, 2.5vw, 1.3rem);
-      font-weight: 400;
-      font-family: 'Inter', sans-serif;
-      border: 2px solid transparent;
-      transition: all 0.3s ease;
-    }
-
-    .custom-button:hover {
-      background-color: #3a3a3a;
-      color: #d4d4d4;
-      border-color: #d4d4d4;
-    }
-
-    .custom-button.pressed {
-      background-color: #4a4a4a;
-    }
-
-    /* ===== Fade In Animation ===== */
-    .fade-in {
-      opacity: 0;
-      animation: fadeIn 1.2s ease-out forwards;
-    }
-
-    @keyframes fadeIn {
-      to {
-        opacity: 1;
-      }
-    }
-
-    .delay-1 {
-      animation-delay: 0.2s;
-    }
-
-    .delay-2 {
-      animation-delay: 0.4s;
-    }
-
-    .delay-3 {
-      animation-delay: 0.6s;
-    }
-
-    /* ===== Cards ===== */
-    .cards-container {
-      display: flex;
-      gap: 30px;
-      justify-content: center;
-      align-items: stretch;
-      flex-wrap: wrap;
-      padding: 20px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .card {
-      background-color: #2a2a2a;
-      border: 2px solid transparent;
-      border-radius: 20px;
-      padding: 40px 30px;
-      flex: 1;
-      min-width: 280px;
-      max-width: 350px;
-      transition: all 0.3s ease;
-      text-align: center;
-      cursor: pointer;
-    }
-
-    .card:hover {
-      background-color: #3a3a3a;
-      border-color: #d4d4d4;
-    }
-
-    .card h3 {
-      font-family: 'Inter', sans-serif;
-      font-weight: 700;
-      font-size: clamp(1.5rem, 3vw, 2rem);
-      color: #d4d4d4;
-      margin: 0 0 20px 0;
-    }
-
-    .card p {
-      font-family: 'Inter', sans-serif;
-      color: #a0a0a0;
-      font-size: 1rem;
-      line-height: 1.6;
-      margin: 0;
-    }
-  </style>
+</style>
 </head>
-
 <body>
 
-  <!-- Cursor -->
-  <div id="glow" class="cursor-glow"></div>
-  <div id="dot" class="cursor-dot"></div>
-  <div id="circle" class="cursor-circle"></div>
+<!-- CURSOR -->
+<div id="cur"></div>
+<div id="cur-ring"></div>
+<div id="prog"></div>
 
-  <!-- Hamburger -->
-  <button id="hamburger" class="hamburger-menu fade-in">
-    <div class="hamburger-line"></div>
-    <div class="hamburger-line"></div>
-    <div class="hamburger-line"></div>
-  </button>
+<!-- NAV -->
+<nav>
+  <a href="#home" class="nav-brand">AS</a>
+  <div class="nav-links">
+    <a href="#mastery"   class="nav-a">About</a>
+    <a href="#portfolio" class="nav-a">Projects</a>
+    <a href="#soul"      class="nav-a">Skills</a>
+    <a href="#journey"   class="nav-a">Experience</a>
+    <a href="#contact"   class="nav-a">Contact</a>
+  </div>
+</nav>
 
-  <!-- Back Button -->
-  <button id="backButton" class="back-button">
-    <div class="back-arrow"></div>
-  </button>
+<!-- ══ HERO ══ -->
+<section id="home">
+  <div class="hero-label">Product Designer</div>
+  <h1 class="hero-name">
+    <span class="ln"><span>ANURAG</span></span>
+    <span class="ln"><span>SUR</span></span>
+  </h1>
+  <div class="hero-bottom">
+    <p class="hero-desc">
+      Transforming complex engineering problems into intuitive, minimalist product experiences. Specializing in CAD/CAM and innovative product design.
+    </p>
+    <div class="hero-actions">
+      <a href="#mastery" class="btn-pill">Know More</a>
+      <div class="socials">
+        <a href="https://linkedin.com" target="_blank" class="soc" title="LinkedIn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+        </a>
+        <a href="https://github.com" target="_blank" class="soc" title="GitHub">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+        </a>
+        <a href="https://instagram.com" target="_blank" class="soc" title="Instagram">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
 
-  <!-- Home Page -->
-  <div id="homePage" class="page active">
-    <div class="center">
-      <div>
-        <h1 class="fade-in delay-1">Anurag Sur</h1>
-        <h2 class="fade-in delay-1">Product Designer</h2>
+<!-- ══ MASTERY ══ -->
+<section id="mastery">
+  <div class="section-wrap">
+    <div class="sec-label reveal">Mastery</div>
+    <div class="mastery-grid">
+      <div class="mastery-card reveal">
+        <div class="card-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        </div>
+        <div class="card-title">CAD Design</div>
+        <p class="card-body">Proficient in SolidWorks, 3DExperience, and Fusion 360 for creating detailed 3D models and technical drawings.</p>
+      </div>
+      <div class="mastery-card reveal d1">
+        <div class="card-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        </div>
+        <div class="card-title">CAM Programming</div>
+        <p class="card-body">Experience with CNC machining, toolpath optimization, and G-code generation for precision manufacturing.</p>
+      </div>
+      <div class="mastery-card reveal d2">
+        <div class="card-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+        </div>
+        <div class="card-title">Product Development</div>
+        <p class="card-body">End-to-end product design from concept sketching to final manufacturing-ready designs.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-        <button id="cta" class="custom-button fade-in delay-3">
-          Know more about me
+<!-- ══ PORTFOLIO ══ -->
+<section id="portfolio">
+  <div class="section-wrap">
+    <div class="portfolio-header reveal">
+      <div class="sec-label" style="margin-bottom:0;">Portfolio</div>
+      <p class="portfolio-quote">"Design is not just what it looks like and feels like. Design is how it works." — Steve Jobs</p>
+    </div>
+    <div class="portfolio-grid" style="grid-template-columns: 1fr;">
+      <div class="port-card reveal" id="medipen-card">
+        <div class="port-row">
+          <div class="port-thumb pi-1">
+            <svg width="36" height="36" viewBox="0 0 64 64" fill="none" opacity=".35">
+              <rect x="16" y="8" width="32" height="44" rx="4" stroke="white" stroke-width="1.5"/>
+              <rect x="20" y="14" width="24" height="3" rx="1" fill="white"/>
+              <rect x="20" y="21" width="16" height="3" rx="1" fill="white"/>
+              <path d="M28 36v8M24 40h8" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="port-info">
+            <div class="port-cat">Medical Equipment</div>
+            <div class="port-name">MediPen</div>
+          </div>
+          <button class="port-expand-btn" id="medipen-toggle" aria-label="Expand">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <div class="port-desc" id="medipen-desc">
+          <p>MediPen is a precision-engineered medical injection device designed for single-handed use. The form factor prioritizes ergonomics and accessibility — reducing dosage errors through tactile feedback mechanisms and a clearly indexed grip system.</p>
+          <div class="port-tags">
+            <span class="port-tag">SolidWorks</span>
+            <span class="port-tag">Ergonomics</span>
+            <span class="port-tag">Medical Grade</span>
+            <span class="port-tag">Rapid Prototyping</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ JOURNEY ══ -->
+<section id="journey">
+  <div class="section-wrap">
+    <div class="journey-header reveal">
+      <div class="journey-mega">JOURNEY</div>
+      <p class="journey-sub">A timeline of professional growth and technical contributions across the design landscape.</p>
+    </div>
+    <div class="journey-list">
+      <div class="journey-item reveal">
+        <div class="j-year">Present</div>
+        <div class="j-info">
+          <div class="j-role">Product Designer</div>
+          <div class="j-company">KAVACH</div>
+        </div>
+        <button class="j-arrow">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 12L12 2M12 2H4M12 2v8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="journey-item reveal">
+        <div class="j-year">2024</div>
+        <div class="j-info">
+          <div class="j-role">Design Intern</div>
+          <div class="j-company">Dassault Systemes</div>
+        </div>
+        <button class="j-arrow">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 12L12 2M12 2H4M12 2v8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="journey-item reveal">
+        <div class="j-year">2023</div>
+        <div class="j-info">
+          <div class="j-role">Management Intern</div>
+          <div class="j-company">Scholastic</div>
+        </div>
+        <button class="j-arrow">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 12L12 2M12 2H4M12 2v8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="journey-item reveal">
+        <div class="j-year">2024</div>
+        <div class="j-info">
+          <div class="j-role">National Finalist</div>
+          <div class="j-company">National STFE</div>
+        </div>
+        <button class="j-arrow">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 12L12 2M12 2H4M12 2v8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
     </div>
   </div>
+</section>
 
-  <!-- About Page -->
-  <div id="aboutPage" class="page">
-    <div class="center">
-      <div class="cards-container">
-        <div class="card" id="skillsCard">
-          <h3>Skills</h3>
-          <p>CAD-CAM Design</p>
+<!-- ══ ACCOLADES ══ -->
+<section id="accolades">
+  <div class="section-wrap">
+    <div class="sec-label reveal">Accolades</div>
+    <div class="accolades-grid">
+      <div class="acc-card reveal">
+        <div class="acc-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
         </div>
-
-        <div class="card" id="experienceCard">
-          <h3>Experience</h3>
-          <p>Product Designer at KAVACH</p>
-        </div>
-
-        <div class="card" id="achievementsCard">
-          <h3>Achievements</h3>
-          <p>An Academic Weapon</p>
+        <div>
+          <div class="acc-title">Academic Excellence</div>
+          <p class="acc-body">Silver medal at Dr. Homi Bhabha Balvaidnyanik Competition. 30+ medals in national olympiads.</p>
         </div>
       </div>
-    </div>
-    
-    <button id="interestsCta" class="custom-button" style="position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);">
-      My Interests ↓
-    </button>
-  </div>
-
-  <!-- Skills Page -->
-  <div id="skillsPage" class="page">
-    <div class="center">
-      <div>
-        <h1 style="font-family: 'Inter', sans-serif; font-weight: 700; color: #d4d4d4; font-size: clamp(2.5rem, 6vw, 4rem); margin-bottom: 40px;">Skills</h1>
-        
-        <div class="cards-container">
-          <div class="card">
-            <h3>CAD Design</h3>
-            <p>Proficient in SolidWorks, 3DExperience, and Fusion 360 for creating detailed 3D models and technical drawings.</p>
-          </div>
-
-          <div class="card">
-            <h3>CAM Programming</h3>
-            <p>Experience with CNC machining, toolpath optimization, and G-code generation for precision manufacturing.</p>
-          </div>
-
-          <div class="card">
-            <h3>Product Development</h3>
-            <p>End-to-end product design from concept sketching to final manufacturing-ready designs.</p>
-          </div>
+      <div class="acc-card reveal d1">
+        <div class="acc-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+        </div>
+        <div>
+          <div class="acc-title">Dassault: STFE (3DS)</div>
+          <p class="acc-body">Won 2nd place across India at the Dassault 3DS: STFE challenge for innovative product design.</p>
+        </div>
+      </div>
+      <div class="acc-card reveal">
+        <div class="acc-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+        </div>
+        <div>
+          <div class="acc-title">Model United Nations</div>
+          <p class="acc-body">Won Best Delegate in my second-ever MUN, the KSJCMUN 2025. Prolific public speaker.</p>
+        </div>
+      </div>
+      <div class="acc-card reveal d1">
+        <div class="acc-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+        </div>
+        <div>
+          <div class="acc-title">Academic Weapon</div>
+          <p class="acc-body">Consistent top performer with exceptional grades and a thirst for knowledge.</p>
         </div>
       </div>
     </div>
   </div>
+</section>
 
-  <!-- Experience Page -->
-  <div id="experiencePage" class="page">
-    <div class="center">
-      <div>
-        <h1 style="font-family: 'Inter', sans-serif; font-weight: 700; color: #d4d4d4; font-size: clamp(2.5rem, 6vw, 4rem); margin-bottom: 40px;">Experience</h1>
-        
-        <div class="cards-container">
-          <div class="card">
-            <h3>KAVACH</h3>
-            <p>Product Designer and Curator of the MediPen: A flagship product in first-aid equipment offering an integrated, intuitive and innovative solution for injuries.</p>
-          </div>
-
-          <div class="card">
-            <h3>Design Projects</h3>
-            <p>Collaborated on multiple cross-functional projects ranging from school level competitions to the national STFE (Seed the Future Entrepreneurs) challenge, secured rank 2 across India.
-</p>
-          </div>
-
-          <div class="card">
-            <h3>Internships</h3>
-            <p>Gained hands-on experience at Dassault Systemes in design thinking, CAD, manufacturing workflows and at Scholastic in workflow management and human resource management.</p>
-          </div>
+<!-- ══ SOUL ══ -->
+<section id="soul">
+  <div class="section-wrap">
+    <div class="sec-label reveal">Soul</div>
+    <div class="soul-grid">
+      <div class="soul-card reveal">
+        <div class="soul-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
         </div>
+        <span class="soul-name">3D Printing</span>
+      </div>
+      <div class="soul-card reveal d1">
+        <div class="soul-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+        </div>
+        <span class="soul-name">Fiction</span>
+      </div>
+      <div class="soul-card reveal d2">
+        <div class="soul-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        </div>
+        <span class="soul-name">Deep Music</span>
+      </div>
+      <div class="soul-card reveal d3">
+        <div class="soul-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
+        </div>
+        <span class="soul-name">Innovation</span>
       </div>
     </div>
   </div>
+</section>
 
-  <!-- Achievements Page -->
-  <div id="achievementsPage" class="page">
-    <div class="center">
-      <div>
-        <h1 style="font-family: 'Inter', sans-serif; font-weight: 700; color: #d4d4d4; font-size: clamp(2.5rem, 6vw, 4rem); margin-bottom: 40px;">Achievements</h1>
-        
-        <div class="cards-container">
-          <div class="card">
-            <h3>Academic Excellence</h3>
-            <p>Consistent top performer with exceptional grades, including more than 30 medals in national olympiads and a silver medal at the Dr. Homi Bhabha Balvaidnyanik Competition.</p>
-          </div>
-
-          <div class="card">
-            <h3>Dassault: STFE (3DS)</h3>
-            <p>Won 2nd place across India at the Dassault 3DS: STFE (Seed the Future Entrepreneurs) challenge, a competition to build a pseudo startup and design an innovative product.</p>
-          </div>
-
-          <div class="card">
-            <h3>Model United Nations</h3>
-            <p>Participated in various MUNs across Pune, and won Best Delegate in my second-ever MUN, the KSJCMUN 2025. </p>
-          </div>
+<!-- ══ CONTACT ══ -->
+<section id="contact">
+  <div class="section-wrap" style="text-align:center;">
+    <div class="contact-mega reveal">LET'S BUILD</div>
+    <p class="contact-sub reveal">Ready to bring your next product idea to life? Reach out and let's start a conversation.</p>
+    <div class="contact-form-wrap reveal">
+      <div class="form-row">
+        <div class="f-grp">
+          <label class="f-lbl">Name</label>
+          <input class="f-inp" type="text" placeholder="John Doe">
+        </div>
+        <div class="f-grp">
+          <label class="f-lbl">Email</label>
+          <input class="f-inp" type="email" placeholder="john@example.com">
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- Interests Page -->
-  <div id="interestsPage" class="page">
-    <div class="center">
-      <div>
-        <h1 style="font-family: 'Inter', sans-serif; font-weight: 700; color: #d4d4d4; font-size: clamp(2.5rem, 6vw, 4rem); margin-bottom: 40px;">My Interests</h1>
-        
-        <div class="cards-container">
-          <div class="card">
-            <h3>3D Printing</h3>
-            <p>Passionate about additive manufacturing and creating functional prototypes with emerging technologies.</p>
-          </div>
-
-          <div class="card">
-            <h3>Books and Music</h3>
-            <p>Favorite pastimes include reading fiction and listening to the most diverse playlist anyone can conjure.</p></p>
-          </div>
-
-          <div class="card">
-            <h3>Innovation</h3>
-            <p>Always seeking new design challenges and opportunities to push creative boundaries.</p>
-          </div>
-        </div>
+      <div class="f-grp" style="border-bottom:none;">
+        <label class="f-lbl">Message</label>
+        <textarea class="f-ta" placeholder="I have a project for you..."></textarea>
       </div>
+      <div class="form-divider" style="margin-bottom:24px;"></div>
+      <button class="form-submit" id="sendBtn">Send Message</button>
     </div>
   </div>
+</section>
 
-  <script>
-    const dot = document.getElementById('dot');
-    const circle = document.getElementById('circle');
-    const glow = document.getElementById('glow');
-    const hamburger = document.getElementById('hamburger');
-    const cta = document.getElementById('cta');
-    const backButton = document.getElementById('backButton');
-    const interestsCta = document.getElementById('interestsCta');
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-name">Anurag Sur © 2026</div>
+  <div class="footer-socials">
+    <a href="https://github.com" target="_blank" class="footer-soc">GitHub</a>
+    <a href="https://linkedin.com" target="_blank" class="footer-soc">LinkedIn</a>
+    <a href="https://instagram.com" target="_blank" class="footer-soc">Instagram</a>
+  </div>
+  <div class="footer-avail">
+    <span class="avail-dot"></span>
+    Available for new projects
+  </div>
+</footer>
 
-    function setGolden(state) {
-      [dot, circle, glow].forEach(el => {
-        el.classList.toggle('golden', state);
-      });
-      circle.classList.toggle('enlarged', state);
+<script>
+const cur  = document.getElementById('cur');
+const ring = document.getElementById('cur-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cur.style.left = mx + 'px';
+  cur.style.top  = my + 'px';
+});
+
+(function ringLoop() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px';
+  ring.style.top  = ry + 'px';
+  requestAnimationFrame(ringLoop);
+})();
+
+document.querySelectorAll('a, button, .mastery-card, .acc-card, .soul-card, input, textarea, #medipen-card').forEach(el => {
+  el.addEventListener('mouseenter', () => { cur.classList.add('hovering');    ring.classList.add('hovering'); });
+  el.addEventListener('mouseleave', () => { cur.classList.remove('hovering'); ring.classList.remove('hovering'); });
+});
+
+document.querySelectorAll('.mastery-card, .acc-card').forEach(el => {
+  el.addEventListener('mousemove', e => {
+    const r = el.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width)  * 100;
+    const y = ((e.clientY - r.top)  / r.height) * 100;
+    el.style.setProperty('--gx', `${x}%`);
+    el.style.setProperty('--gy', `${y}%`);
+  });
+});
+
+document.querySelectorAll('.soul-card').forEach((el, i) => {
+  const dir = i % 2 === 0 ? 1 : -1;
+  let tx = 0, ty = 0, px = 0, py = 0, sc = 1, rot = 0, targetRot = 0;
+  let raf = null, active = false;
+
+  el.addEventListener('mousemove', e => {
+    const r = el.getBoundingClientRect();
+    tx = (e.clientX - r.left) / r.width  - 0.5;
+    ty = (e.clientY - r.top)  / r.height - 0.5;
+  });
+
+  el.addEventListener('mouseenter', () => {
+    active     = true;
+    targetRot  = dir * 10;
+    el.style.transition = 'border-color .3s ease, background .3s ease';
+    const loop = () => {
+      if (!active) return;
+      px  += (tx * 28   - px)  * 0.1;
+      py  += (ty * 28   - py)  * 0.1;
+      sc  += (1.08      - sc)  * 0.1;
+      rot += (targetRot - rot) * 0.15;
+      el.style.transform = `translate(${px}px,${py}px) scale(${sc}) rotate(${rot}deg)`;
+      raf = requestAnimationFrame(loop);
+    };
+    loop();
+  });
+
+  el.addEventListener('mouseleave', () => {
+    active    = false;
+    targetRot = 0;
+    cancelAnimationFrame(raf);
+    el.style.transition = 'border-color .3s ease, background .3s ease, transform .6s cubic-bezier(0.34,1.56,0.64,1)';
+    el.style.transform  = 'translate(0px,0px) scale(1) rotate(0deg)';
+    px = 0; py = 0; sc = 1; rot = 0;
+  });
+});
+
+window.addEventListener('scroll', () => {
+  const pct = window.scrollY / (document.documentElement.scrollHeight - innerHeight) * 100;
+  document.getElementById('prog').style.width = pct + '%';
+});
+
+const navAs = document.querySelectorAll('.nav-a');
+const navObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navAs.forEach(a => a.classList.remove('on'));
+      const match = document.querySelector(`.nav-a[href="#${entry.target.id}"]`);
+      if (match) match.classList.add('on');
     }
+  });
+}, { threshold: 0.45 });
+document.querySelectorAll('section[id]').forEach(s => navObserver.observe(s));
 
-    window.addEventListener('mousemove', (e) => {
-      const x = e.clientX;
-      const y = e.clientY;
-
-      dot.style.left = circle.style.left = glow.style.left = x + 'px';
-      dot.style.top = circle.style.top = glow.style.top = y + 'px';
-    });
-
-    [hamburger, cta, interestsCta].forEach(el => {
-      el.addEventListener('mouseenter', () => setGolden(true));
-      el.addEventListener('mouseleave', () => setGolden(false));
-      el.addEventListener('mousedown', () => el.classList.add('pressed'));
-      el.addEventListener('mouseup', () => el.classList.remove('pressed'));
-    });
-
-    // Back button interactions
-    backButton.addEventListener('mouseenter', () => setGolden(true));
-    backButton.addEventListener('mouseleave', () => setGolden(false));
-    backButton.addEventListener('mousedown', () => backButton.classList.add('pressed'));
-    backButton.addEventListener('mouseup', () => backButton.classList.remove('pressed'));
-
-    // Page Navigation
-    const skillsCard = document.getElementById('skillsCard');
-    const experienceCard = document.getElementById('experienceCard');
-    const achievementsCard = document.getElementById('achievementsCard');
-
-    let previousPage = 'homePage';
-
-    function showPage(pageId) {
-      const currentActivePage = document.querySelector('.page.active');
-      if (currentActivePage) {
-        previousPage = currentActivePage.id;
-      }
-
-      document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-      });
-      document.getElementById(pageId).classList.add('active');
-
-      // Show/hide back button
-      if (pageId === 'homePage') {
-        backButton.classList.remove('visible');
-      } else {
-        backButton.classList.add('visible');
-      }
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in');
+      revealObserver.unobserve(entry.target);
     }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
-    cta.addEventListener('click', () => showPage('aboutPage'));
-    hamburger.addEventListener('click', () => showPage('homePage'));
-    backButton.addEventListener('click', () => showPage(previousPage));
-    interestsCta.addEventListener('click', () => showPage('interestsPage'));
-    
-    skillsCard.addEventListener('click', () => showPage('skillsPage'));
-    experienceCard.addEventListener('click', () => showPage('experiencePage'));
-    achievementsCard.addEventListener('click', () => showPage('achievementsPage'));
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
 
-    // Card hover effects
-    [skillsCard, experienceCard, achievementsCard].forEach(card => {
-      card.addEventListener('mouseenter', () => setGolden(true));
-      card.addEventListener('mouseleave', () => setGolden(false));
+document.getElementById('medipen-card').addEventListener('click', function () {
+  const desc = document.getElementById('medipen-desc');
+  const btn  = document.getElementById('medipen-toggle');
+  const isOpen = desc.classList.toggle('open');
+  btn.classList.toggle('open', isOpen);
+});
+
+document.getElementById('sendBtn').addEventListener('click', async function () {
+  const name    = document.querySelector('input[type="text"]').value.trim();
+  const email   = document.querySelector('input[type="email"]').value.trim();
+  const message = document.querySelector('.f-ta').value.trim();
+
+  const reset = () => {
+    this.textContent = 'Send Message';
+    this.className = 'form-submit';
+    this.disabled = false;
+  };
+
+  if (!name || !email || !message) {
+    this.textContent = 'Please fill all fields';
+    this.className = 'form-submit state-warn';
+    setTimeout(reset, 2500);
+    return;
+  }
+
+  this.textContent = 'Sending...';
+  this.className = 'form-submit state-loading';
+  this.disabled = true;
+
+  try {
+    const res = await fetch('https://formspree.io/f/xyknwqjr', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ name, email, message })
     });
-  </script>
 
+    if (res.ok) {
+      this.textContent = 'Message Sent ✓';
+      this.className = 'form-submit state-ok';
+      document.querySelector('input[type="text"]').value = '';
+      document.querySelector('input[type="email"]').value = '';
+      document.querySelector('.f-ta').value = '';
+      setTimeout(reset, 3000);
+    } else {
+      throw new Error();
+    }
+  } catch {
+    this.textContent = 'Failed — try again';
+    this.className = 'form-submit state-err';
+    this.disabled = false;
+    setTimeout(reset, 3000);
+  }
+});
+</script>
 </body>
 </html>
