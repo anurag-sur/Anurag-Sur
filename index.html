@@ -1088,8 +1088,9 @@ document.getElementById('medipen-card').addEventListener('click', function () {
   const LINE2 = 'SUR';
 
   const PARTICLE_SPACING = 5;
-  const EXPLODE_RADIUS   = 60;
-  const EXPLODE_FORCE    = 7;
+  const EXPLODE_RADIUS   = 90;
+  const EXPLODE_FORCE    = 5;
+  const MARGIN           = 8;  // hard min distance between cursor and any particle
   const FRICTION         = 0.88;
   const RETURN_SPRING    = 0.09;
   const PARTICLE_SIZE    = 2.2;
@@ -1201,6 +1202,15 @@ document.getElementById('medipen-card').addEventListener('click', function () {
         const angle = Math.atan2(dy, dx);
         p.vx += Math.cos(angle) * force;
         p.vy += Math.sin(angle) * force;
+      }
+
+      // hard margin — if particle is still too close, shove it out instantly
+      if (dist > 0 && dist < MARGIN) {
+        const angle = Math.atan2(dy, dx);
+        p.x = curX + Math.cos(angle) * MARGIN;
+        p.y = curY + Math.sin(angle) * MARGIN;
+        p.vx *= 0.2;
+        p.vy *= 0.2;
       }
 
       p.vx += (p.ox - p.x) * RETURN_SPRING;
