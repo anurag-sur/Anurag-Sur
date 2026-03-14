@@ -176,7 +176,8 @@ nav {
   position: relative;
   pointer-events: none;
   z-index: 10;
-  /* height set dynamically by JS to exactly the text height */
+  /* fallback height = two lines at line-height .88 of the clamped font size */
+  height: calc(clamp(6rem, 13vw, 260px) * 0.88 * 2);
 }
 #hero-canvas {
   display: block;
@@ -639,12 +640,9 @@ footer {
 <div id="cur"></div>
 <div id="cur-ring"></div>
 <div id="hero-reticle">
-  <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- outer ring -->
+  <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle id="ret-outer" cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-    <!-- inner ring -->
     <circle cx="32" cy="32" r="4" stroke="rgba(255,255,255,0.9)" stroke-width="1"/>
-    <!-- crosshair lines -->
     <line x1="32" y1="2"  x2="32" y2="14" stroke="rgba(255,255,255,0.6)" stroke-width="1" stroke-linecap="round"/>
     <line x1="32" y1="50" x2="32" y2="62" stroke="rgba(255,255,255,0.6)" stroke-width="1" stroke-linecap="round"/>
     <line x1="2"  y1="32" x2="14" y2="32" stroke="rgba(255,255,255,0.6)" stroke-width="1" stroke-linecap="round"/>
@@ -1090,7 +1088,7 @@ document.getElementById('medipen-card').addEventListener('click', function () {
   const LINE2 = 'SUR';
 
   const PARTICLE_SPACING = 5;
-  const EXPLODE_RADIUS   = 200;
+  const EXPLODE_RADIUS   = 60;
   const EXPLODE_FORCE    = 7;
   const FRICTION         = 0.88;
   const RETURN_SPRING    = 0.09;
@@ -1101,7 +1099,7 @@ document.getElementById('medipen-card').addEventListener('click', function () {
 
   function calcFontSize() {
     const vw = window.innerWidth;
-    return Math.min(Math.max(vw * 0.17, 120), 340);
+    return Math.min(Math.max(vw * 0.13, 96), 260);
   }
 
   function resize() {
