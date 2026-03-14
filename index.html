@@ -38,9 +38,13 @@ a { cursor: none; }
   z-index: 9999;
   transform: translate(-50%, -50%);
   mix-blend-mode: difference;
-  transition: width .3s cubic-bezier(0.16,1,.3,1), height .3s cubic-bezier(0.16,1,.3,1);
+  transition: width .3s cubic-bezier(0.16,1,.3,1),
+              height .3s cubic-bezier(0.16,1,.3,1),
+              opacity .25s ease;
 }
 #cur.hovering { width: 48px; height: 48px; }
+#cur.on-hero  { width: 0px; height: 0px; opacity: 0; }
+
 #cur-ring {
   position: fixed;
   width: 48px; height: 48px;
@@ -52,6 +56,18 @@ a { cursor: none; }
   transition: opacity .3s ease;
 }
 #cur-ring.hovering { opacity: 0; }
+#cur-ring.on-hero  { opacity: 0; }
+
+#hero-reticle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+#hero-reticle.visible { opacity: 1; }
+#hero-reticle svg { display: block; }
 
 /* ─────────────────────────────────────────
    SCROLL PROGRESS BAR
@@ -130,7 +146,7 @@ nav {
   justify-content: flex-end;
   padding: 0 80px 72px;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 .hero-label {
   display: flex; align-items: center; gap: 14px;
@@ -150,22 +166,25 @@ nav {
   background: rgba(255,255,255,0.3);
 }
 .hero-name {
-  font-weight: 900;
-  font-size: clamp(6rem, 14vw, 17rem);
   line-height: .88;
-  letter-spacing: -.04em;
-  color: #fff;
-  overflow: hidden;
-  text-transform: uppercase;
+  overflow: visible;
+  position: relative;
 }
-.hero-name .ln { display: block; overflow: hidden; }
-.hero-name .ln span {
+#hero-canvas-wrap {
+  opacity: 0;
+  animation: fadeUp .01s ease 1.2s forwards;
+  position: relative;
+  pointer-events: none;
+  z-index: 10;
+  /* height set dynamically by JS to exactly the text height */
+}
+#hero-canvas {
   display: block;
-  transform: translateY(110%);
-  animation: slideUp .9s cubic-bezier(0.16,1,.3,1) forwards;
+  position: absolute;
+  pointer-events: none;
+  /* top/left set by JS to offset the PAD */
 }
-.hero-name .ln:nth-child(1) span { animation-delay: .5s; }
-.hero-name .ln:nth-child(2) span { animation-delay: .65s; }
+#hero-canvas-sizer { display: none; }
 .hero-bottom {
   display: flex;
   align-items: flex-end;
@@ -539,35 +558,13 @@ nav {
 .form-submit:hover { color: #fff; border-color: rgba(255,255,255,0.4); }
 .form-submit:hover::before { transform: scaleX(1); }
 
-/* state: warning */
-.form-submit.state-warn {
-  border-color: rgba(234,179,8,0.5);
-  color: rgba(234,179,8,0.9);
-  background: rgba(234,179,8,0.06);
-}
+.form-submit.state-warn  { border-color: rgba(234,179,8,0.5);   color: rgba(234,179,8,0.9);   background: rgba(234,179,8,0.06); }
 .form-submit.state-warn::before { transform: scaleX(0); }
-
-/* state: success */
-.form-submit.state-ok {
-  border-color: rgba(74,222,128,0.5);
-  color: rgba(74,222,128,0.9);
-  background: rgba(74,222,128,0.06);
-}
+.form-submit.state-ok    { border-color: rgba(74,222,128,0.5);  color: rgba(74,222,128,0.9);  background: rgba(74,222,128,0.06); }
 .form-submit.state-ok::before { transform: scaleX(0); }
-
-/* state: error */
-.form-submit.state-err {
-  border-color: rgba(248,113,113,0.5);
-  color: rgba(248,113,113,0.9);
-  background: rgba(248,113,113,0.06);
-}
+.form-submit.state-err   { border-color: rgba(248,113,113,0.5); color: rgba(248,113,113,0.9); background: rgba(248,113,113,0.06); }
 .form-submit.state-err::before { transform: scaleX(0); }
-
-/* state: loading */
-.form-submit.state-loading {
-  color: rgba(255,255,255,0.3);
-  border-color: rgba(255,255,255,0.1);
-}
+.form-submit.state-loading { color: rgba(255,255,255,0.3); border-color: rgba(255,255,255,0.1); }
 
 /* ─────────────────────────────────────────
    FOOTER
@@ -579,7 +576,7 @@ footer {
 }
 .footer-name { font-size: .72rem; font-weight: 500; letter-spacing: .08em; color: rgba(255,255,255,0.3); text-transform: uppercase; }
 .footer-socials { display: flex; gap: 28px; }
-.footer-soc { font-size: .72rem; font-weight: 400; color: rgba(255,255,255,0.3); letter-spacing: .01em; transition: color .25s; }
+.footer-soc { font-size: .72rem; font-weight: 400; color: rgba(255,255,255,0.3); letter-spacing: .01em; transition: color .25s; text-decoration: none; }
 .footer-soc:hover { color: rgba(255,255,255,0.8); }
 .footer-avail { display: flex; align-items: center; gap: 8px; font-size: .72rem; font-weight: 400; color: rgba(255,255,255,0.3); }
 .avail-dot {
@@ -641,9 +638,20 @@ footer {
 <!-- CURSOR -->
 <div id="cur"></div>
 <div id="cur-ring"></div>
+<div id="hero-reticle">
+  <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- outer ring -->
+    <circle id="ret-outer" cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+    <!-- inner ring -->
+    <circle cx="32" cy="32" r="4" stroke="rgba(255,255,255,0.9)" stroke-width="1"/>
+    <!-- crosshair lines -->
+    <line x1="32" y1="2"  x2="32" y2="14" stroke="rgba(255,255,255,0.6)" stroke-width="1" stroke-linecap="round"/>
+    <line x1="32" y1="50" x2="32" y2="62" stroke="rgba(255,255,255,0.6)" stroke-width="1" stroke-linecap="round"/>
+    <line x1="2"  y1="32" x2="14" y2="32" stroke="rgba(255,255,255,0.6)" stroke-width="1" stroke-linecap="round"/>
+    <line x1="50" y1="32" x2="62" y2="32" stroke="rgba(255,255,255,0.6)" stroke-width="1" stroke-linecap="round"/>
+  </svg>
+</div>
 <div id="prog"></div>
-
-<canvas id="grain" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9500;opacity:0.04;"></canvas>
 
 <!-- NAV -->
 <nav>
@@ -660,10 +668,9 @@ footer {
 <!-- ══ HERO ══ -->
 <section id="home">
   <div class="hero-label">Product Designer</div>
-  <h1 class="hero-name">
-    <span class="ln"><span>ANURAG</span></span>
-    <span class="ln"><span>SUR</span></span>
-  </h1>
+  <div class="hero-name" id="hero-canvas-wrap" aria-label="ANURAG SUR">
+    <canvas id="hero-canvas"></canvas>
+  </div>
   <div class="hero-bottom">
     <p class="hero-desc">
       Transforming complex engineering problems into intuitive, minimalist product experiences. Specializing in CAD/CAM and innovative product design.
@@ -742,7 +749,7 @@ footer {
           </button>
         </div>
         <div class="port-desc" id="medipen-desc">
-          <p>MediPen is a compact, portable, and intuitive first aid device that combines essential wound-treatment tools into one compact design, enabling faster and more accessible care in emergency situations.The design emphasizes modular integration, usability, and manufacturable geometry while maintaining a minimal and efficient product architecture.</p>
+          <p>MediPen is a compact, portable, and intuitive first aid device that combines essential wound-treatment tools into one compact design, enabling faster and more accessible care in emergency situations. The design emphasizes modular integration, usability, and manufacturable geometry while maintaining a minimal and efficient product architecture.</p>
           <div class="port-tags">
             <span class="port-tag">Design Thinking</span>
             <span class="port-tag">2D and 3D CAD</span>
@@ -929,6 +936,8 @@ footer {
 const cur  = document.getElementById('cur');
 const ring = document.getElementById('cur-ring');
 let mx = 0, my = 0, rx = 0, ry = 0;
+// smooth reticle position
+let retX = 0, retY = 0;
 
 document.addEventListener('mousemove', e => {
   mx = e.clientX; my = e.clientY;
@@ -936,14 +945,51 @@ document.addEventListener('mousemove', e => {
   cur.style.top  = my + 'px';
 });
 
-(function ringLoop() {
+// ── HERO RETICLE ──
+const reticle  = document.getElementById('hero-reticle');
+const retOuter = document.getElementById('ret-outer');
+const heroWrap = document.getElementById('hero-canvas-wrap');
+let onHero   = false;
+let retAngle = 0;
+retOuter.setAttribute('stroke-dasharray', '10 5');
+
+heroWrap.style.pointerEvents = 'all';
+
+heroWrap.addEventListener('mouseenter', () => {
+  onHero = true;
+  cur.classList.add('on-hero');
+  ring.classList.add('on-hero');
+  reticle.classList.add('visible');
+});
+heroWrap.addEventListener('mouseleave', () => {
+  onHero = false;
+  cur.classList.remove('on-hero');
+  ring.classList.remove('on-hero');
+  reticle.classList.remove('visible');
+});
+
+// unified RAF loop — ring lag + reticle smooth follow + spin
+(function masterLoop() {
+  // lagged ring
   rx += (mx - rx) * 0.12;
   ry += (my - ry) * 0.12;
   ring.style.left = rx + 'px';
   ring.style.top  = ry + 'px';
-  requestAnimationFrame(ringLoop);
+
+  // smooth reticle follow (faster than ring, slower than cursor)
+  retX += (mx - retX) * 0.18;
+  retY += (my - retY) * 0.18;
+  reticle.style.left = retX + 'px';
+  reticle.style.top  = retY + 'px';
+
+  // spin outer ring
+  retAngle += 0.35;
+  retOuter.setAttribute('transform', `rotate(${retAngle} 32 32)`);
+
+  requestAnimationFrame(masterLoop);
 })();
 
+// hovering state for all interactive elements
 document.querySelectorAll('a, button, .mastery-card, .acc-card, .soul-card, input, textarea, #medipen-card').forEach(el => {
   el.addEventListener('mouseenter', () => { cur.classList.add('hovering');    ring.classList.add('hovering'); });
   el.addEventListener('mouseleave', () => { cur.classList.remove('hovering'); ring.classList.remove('hovering'); });
@@ -952,10 +998,8 @@ document.querySelectorAll('a, button, .mastery-card, .acc-card, .soul-card, inpu
 document.querySelectorAll('.mastery-card, .acc-card').forEach(el => {
   el.addEventListener('mousemove', e => {
     const r = el.getBoundingClientRect();
-    const x = ((e.clientX - r.left) / r.width)  * 100;
-    const y = ((e.clientY - r.top)  / r.height) * 100;
-    el.style.setProperty('--gx', `${x}%`);
-    el.style.setProperty('--gy', `${y}%`);
+    el.style.setProperty('--gx', ((e.clientX - r.left) / r.width  * 100) + '%');
+    el.style.setProperty('--gy', ((e.clientY - r.top)  / r.height * 100) + '%');
   });
 });
 
@@ -971,8 +1015,7 @@ document.querySelectorAll('.soul-card').forEach((el, i) => {
   });
 
   el.addEventListener('mouseenter', () => {
-    active     = true;
-    targetRot  = dir * 10;
+    active = true; targetRot = dir * 10;
     el.style.transition = 'border-color .3s ease, background .3s ease';
     const loop = () => {
       if (!active) return;
@@ -987,8 +1030,7 @@ document.querySelectorAll('.soul-card').forEach((el, i) => {
   });
 
   el.addEventListener('mouseleave', () => {
-    active    = false;
-    targetRot = 0;
+    active = false; targetRot = 0;
     cancelAnimationFrame(raf);
     el.style.transition = 'border-color .3s ease, background .3s ease, transform .6s cubic-bezier(0.34,1.56,0.64,1)';
     el.style.transform  = 'translate(0px,0px) scale(1) rotate(0deg)';
@@ -1038,6 +1080,166 @@ document.getElementById('medipen-card').addEventListener('click', function () {
   btn.classList.toggle('open', isOpen);
 });
 
+/* ── HERO NAME PARTICLE SYSTEM ── */
+(function () {
+  const wrap   = document.getElementById('hero-canvas-wrap');
+  const canvas = document.getElementById('hero-canvas');
+  const ctx    = canvas.getContext('2d');
+
+  const LINE1 = 'ANURAG';
+  const LINE2 = 'SUR';
+
+  const PARTICLE_SPACING = 5;
+  const EXPLODE_RADIUS   = 200;
+  const EXPLODE_FORCE    = 7;
+  const FRICTION         = 0.88;
+  const RETURN_SPRING    = 0.09;
+  const PARTICLE_SIZE    = 2.2;
+
+  let W, H, dpr, fontSize, particles = [];
+  let curX = -9999, curY = -9999;
+
+  function calcFontSize() {
+    const vw = window.innerWidth;
+    return Math.min(Math.max(vw * 0.17, 120), 340);
+  }
+
+  function resize() {
+    dpr      = window.devicePixelRatio || 1;
+    fontSize = calcFontSize();
+
+    const offCtx = document.createElement('canvas').getContext('2d');
+    const ls = -0.04;
+
+    function measureLine(text) {
+      offCtx.font = `900 ${fontSize}px Inter, sans-serif`;
+      let w = 0;
+      for (const ch of text) w += offCtx.measureText(ch).width;
+      w += ls * fontSize * (text.length - 1);
+      return w;
+    }
+
+    const lineH  = fontSize * 0.88;
+    const textW  = Math.max(measureLine(LINE1), measureLine(LINE2)) + 8;
+    const textH  = lineH * 2;
+
+    const PAD = EXPLODE_RADIUS * 2;
+
+    W = textW + PAD * 2;
+    H = textH + PAD * 2;
+
+    canvas.width  = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    canvas.style.width  = W + 'px';
+    canvas.style.height = H + 'px';
+    // offset canvas so text sits at origin; overflow bleeds freely
+    canvas.style.left = -PAD + 'px';
+    canvas.style.top  = -PAD + 'px';
+
+    // wrapper holds ONLY the text height in layout — no extra space
+    wrap.style.height = textH + 'px';
+    wrap.style.width  = textW + 'px';
+
+    buildParticles(PAD);
+  }
+
+  function sampleLine(text, yBaseline, padX, padY) {
+    const off = document.createElement('canvas');
+    off.width  = Math.round(W * dpr);
+    off.height = Math.round(H * dpr);
+    const c = off.getContext('2d');
+    c.scale(dpr, dpr);
+    c.font = `900 ${fontSize}px Inter, sans-serif`;
+    c.fillStyle = '#fff';
+    c.textBaseline = 'alphabetic';
+    const ls = -0.04 * fontSize;
+    let x = padX;
+    for (const ch of text) {
+      c.fillText(ch, x, yBaseline);
+      x += c.measureText(ch).width + ls;
+    }
+    const imgData = c.getImageData(0, 0, off.width, off.height);
+    const pts = [];
+    const step = Math.round(PARTICLE_SPACING * dpr);
+    for (let py = 0; py < off.height; py += step) {
+      for (let px = 0; px < off.width; px += step) {
+        const i = (py * off.width + px) * 4;
+        if (imgData.data[i + 3] > 128) {
+          pts.push({ ox: px / dpr, oy: py / dpr });
+        }
+      }
+    }
+    return pts;
+  }
+
+  function buildParticles(pad) {
+    particles = [];
+    const lineH = fontSize * 0.88;
+    const base1 = pad + fontSize * 0.82;
+    const base2 = base1 + lineH + fontSize * 0.05;
+
+    for (const pt of [...sampleLine(LINE1, base1, pad, pad), ...sampleLine(LINE2, base2, pad, pad)]) {
+      particles.push({
+        ox: pt.ox, oy: pt.oy,
+        x:  pt.ox, y:  pt.oy,
+        vx: 0,     vy: 0,
+        alpha: 0.75 + Math.random() * 0.25,
+      });
+    }
+  }
+
+  function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.scale(dpr, dpr);
+
+    for (const p of particles) {
+      const dx   = p.x - curX;
+      const dy   = p.y - curY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < EXPLODE_RADIUS) {
+        const force = (1 - dist / EXPLODE_RADIUS) * EXPLODE_FORCE;
+        const angle = Math.atan2(dy, dx);
+        p.vx += Math.cos(angle) * force;
+        p.vy += Math.sin(angle) * force;
+      }
+
+      p.vx += (p.ox - p.x) * RETURN_SPRING;
+      p.vy += (p.oy - p.y) * RETURN_SPRING;
+      p.vx *= FRICTION;
+      p.vy *= FRICTION;
+      p.x  += p.vx;
+      p.y  += p.vy;
+
+      const homeDist = Math.sqrt((p.x - p.ox) ** 2 + (p.y - p.oy) ** 2);
+      const fade     = Math.max(0.25, 1 - homeDist / 120);
+
+      ctx.globalAlpha = p.alpha * fade;
+      ctx.fillStyle   = '#ffffff';
+      ctx.fillRect(p.x - PARTICLE_SIZE / 2, p.y - PARTICLE_SIZE / 2, PARTICLE_SIZE, PARTICLE_SIZE);
+    }
+
+    ctx.restore();
+    requestAnimationFrame(loop);
+  }
+
+  document.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    curX = e.clientX - rect.left;
+    curY = e.clientY - rect.top;
+  });
+
+  document.fonts.ready.then(() => {
+    resize();
+    loop();
+    wrap.style.opacity  = '1';
+    wrap.style.animation = 'none';
+  });
+
+  window.addEventListener('resize', resize);
+})();
+
 document.getElementById('sendBtn').addEventListener('click', async function () {
   const name    = document.querySelector('input[type="text"]').value.trim();
   const email   = document.querySelector('input[type="email"]').value.trim();
@@ -1084,36 +1286,6 @@ document.getElementById('sendBtn').addEventListener('click', async function () {
     setTimeout(reset, 3000);
   }
 });
-
-// Canvas grain — animated film noise
-(function () {
-  const canvas = document.getElementById('grain');
-  const ctx = canvas.getContext('2d');
-
-  function resize() {
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-
-  function drawGrain() {
-    const w = canvas.width;
-    const h = canvas.height;
-    const img = ctx.createImageData(w, h);
-    const d   = img.data;
-    for (let i = 0; i < d.length; i += 4) {
-      const v = Math.random() * 255 | 0;
-      d[i] = d[i+1] = d[i+2] = v;
-      d[i+3] = 255; // alpha controlled by CSS opacity
-    }
-    ctx.putImageData(img, 0, 0);
-    requestAnimationFrame(drawGrain);
-  }
-
-  resize();
-  window.addEventListener('resize', resize);
-  drawGrain();
-})();
-
 </script>
 </body>
 </html>
